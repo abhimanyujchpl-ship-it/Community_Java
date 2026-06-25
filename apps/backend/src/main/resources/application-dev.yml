@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+
+logging:
+  level:
+    com.communityapp: DEBUG
+    org.springframework.security: INFO

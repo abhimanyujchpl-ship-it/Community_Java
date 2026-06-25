@@ -1,0 +1,15 @@
+{
+  "name": "community-app",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/mobile",
+    "packages/shared"
+  ],
+  "scripts": {
+    "mobile": "npm --workspace apps/mobile run start",
+    "mobile:typecheck": "npm --workspace apps/mobile run typecheck",
+    "backend": "mvn -f apps/backend/pom.xml spring-boot:run",
+    "backend:test": "mvn -f apps/backend/pom.xml test"
+  }
+}
