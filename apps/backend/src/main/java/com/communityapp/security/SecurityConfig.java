@@ -45,7 +45,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
-                        .requestMatchers("/docs/**", "/actuator/health", "/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/health", "/actuator/health").permitAll()
+                        .requestMatchers("/docs/**", "/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

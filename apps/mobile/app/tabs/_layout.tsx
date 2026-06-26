@@ -1,11 +1,17 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { StyleSheet, View } from "react-native";
 import { colors } from "@/constants/colors";
+import { radius } from "@/constants/radius";
 
 const tabBarIcon =
-  (name: keyof typeof Ionicons.glyphMap) =>
-  ({ color, size }: { color: string; size: number }) =>
-    <Ionicons name={name} size={size} color={color} />;
+  (name: keyof typeof MaterialIcons.glyphMap) =>
+  ({ color, focused }: { color: string; focused: boolean }) =>
+    (
+      <View style={[styles.iconWrap, focused ? styles.iconWrapActive : null]}>
+        <MaterialIcons name={name} size={22} color={color} />
+      </View>
+    );
 
 export default function BottomTabsLayout() {
   return (
@@ -13,26 +19,45 @@ export default function BottomTabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textGrey,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-          height: 66,
-          paddingBottom: 8,
-          paddingTop: 6,
-          borderTopWidth: 1
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600"
-        }
+        tabBarInactiveTintColor: colors.onSurfaceVariant,
+        tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.label,
+        tabBarItemStyle: styles.item
       }}
     >
-      <Tabs.Screen name="feed" options={{ title: "Feed", tabBarIcon: tabBarIcon("chatbubble-ellipses-outline") }} />
-      <Tabs.Screen name="events" options={{ title: "Events", tabBarIcon: tabBarIcon("calendar-outline") }} />
-      <Tabs.Screen name="community" options={{ title: "Community", tabBarIcon: tabBarIcon("people-outline") }} />
-      <Tabs.Screen name="notifications" options={{ title: "Alerts", tabBarIcon: tabBarIcon("notifications-outline") }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile", tabBarIcon: tabBarIcon("person-circle-outline") }} />
+      <Tabs.Screen name="feed" options={{ title: "Feed", tabBarIcon: tabBarIcon("forum") }} />
+      <Tabs.Screen name="events" options={{ title: "Events", tabBarIcon: tabBarIcon("event") }} />
+      <Tabs.Screen name="community" options={{ title: "Community", tabBarIcon: tabBarIcon("groups") }} />
+      <Tabs.Screen name="notifications" options={{ title: "Alerts", tabBarIcon: tabBarIcon("notifications-none") }} />
+      <Tabs.Screen name="profile" options={{ title: "Profile", tabBarIcon: tabBarIcon("person-outline") }} />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    height: 72,
+    paddingTop: 6,
+    paddingBottom: 8,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(191, 200, 197, 0.75)",
+    backgroundColor: colors.surfaceContainerLowest
+  },
+  item: {
+    minHeight: 58
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: "700"
+  },
+  iconWrap: {
+    minWidth: 44,
+    height: 28,
+    borderRadius: radius.full,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  iconWrapActive: {
+    backgroundColor: colors.secondaryContainer
+  }
+});

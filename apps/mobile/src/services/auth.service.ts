@@ -1,6 +1,39 @@
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 import { ApiResponse, AuthResponse, AuthUser, UserSummary } from "@/types";
 import { api, unwrapRequired } from "./api";
+
+const TOKEN_KEY = "accessToken";
+
+const tokenStorage = {
+  save: async (token: string) => {
+    if (Platform.OS === "web" && typeof localStorage !== "undefined") {
+      localStorage.setItem(TOKEN_KEY, token);
+      return;
+    }
+
+    await SecureStore.setItemAsync(TOKEN_KEY, token);
+  },
+  get: async () => {
+    if (Platform.OS === "web" && typeof localStorage !== "undefined") {
+      return localStorage.getItem(TOKEN_KEY);
+    }
+
+    try {
+      return await SecureStore.getItemAsync(TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  },
+  clear: async () => {
+    if (Platform.OS === "web" && typeof localStorage !== "undefined") {
+      localStorage.removeItem(TOKEN_KEY);
+      return;
+    }
+
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+  }
+};
 
 export interface LoginPayload {
   emailOrMobile: string;
@@ -46,7 +79,7 @@ export const authService = {
     const response = await api.get<ApiResponse<UserSummary>>("/auth/me");
     return unwrapRequired(response.data, "Current user response was empty");
   },
-  saveToken: (token: string) => SecureStore.setItemAsync("accessToken", token),
-  getToken: () => SecureStore.getItemAsync("accessToken"),
-  clearToken: () => SecureStore.deleteItemAsync("accessToken")
+  saveToken: tokenStorage.save,
+  getToken: tokenStorage.get,
+  clearToken: tokenStorage.clear
 };

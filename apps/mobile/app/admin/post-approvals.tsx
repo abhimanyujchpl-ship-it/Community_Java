@@ -1,101 +1,51 @@
-import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
-import { router } from "expo-router";
-import { CommunityCard } from "@/components/cards/CommunityCard";
-import { PostCard } from "@/components/cards/PostCard";
-import { LoadingState } from "@/components/common/LoadingState";
-import { SearchInput } from "@/components/forms/SearchInput";
-import { AppHeader } from "@/components/common/AppHeader";
-import { ScreenContainer } from "@/components/layout/ScreenContainer";
-import { EmptyState } from "@/components/lists/EmptyState";
-import { communityService } from "@/services/community.service";
-import { postService } from "@/services/post.service";
-import { CommunityPost, CommunitySummary } from "@/types";
+import { StyleSheet, Text, View } from "react-native";
+import { DashboardLayout, WebAvatar, WebBadge, WebButton, WebCard, WebTextarea } from "@/components/web/WebKit";
+import { colors } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 
-export default function PostApprovalsScreen() {
-  const [query, setQuery] = useState("");
-  const [communities, setCommunities] = useState<CommunitySummary[]>([]);
-  const [selectedCommunity, setSelectedCommunity] = useState<CommunitySummary | null>(null);
-  const [posts, setPosts] = useState<CommunityPost[]>([]);
-  const [loadingCommunities, setLoadingCommunities] = useState(true);
-  const [loadingPosts, setLoadingPosts] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const posts = [
+  ["Aarav Mehta", "Announcement", "Water supply maintenance", "Please store water before the Sunday maintenance window."],
+  ["Priya Nair", "Discussion", "Weekend clean-up volunteers", "Join us for a clubhouse clean-up drive."]
+];
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setLoadingCommunities(true);
-      communityService
-        .search(query)
-        .then(setCommunities)
-        .catch(() => setError("Unable to load communities."))
-        .finally(() => setLoadingCommunities(false));
-    }, 250);
-
-    return () => clearTimeout(timeout);
-  }, [query]);
-
-  const selectCommunity = async (community: CommunitySummary) => {
-    setSelectedCommunity(community);
-    setLoadingPosts(true);
-    setError(null);
-    try {
-      setPosts(await postService.pending(community.id));
-    } catch {
-      setError("Unable to load pending posts.");
-    } finally {
-      setLoadingPosts(false);
-    }
-  };
-
+export default function AdminPostApprovalsScreen() {
   return (
-    <>
-      <AppHeader title="Post Approvals" showNotifications={false} />
-      <ScreenContainer padded={false}>
-        <View className="bg-white px-4 py-3">
-          <SearchInput value={query} onChangeText={setQuery} placeholder="Search community to review" />
-        </View>
-        {!selectedCommunity ? (
-          <View className="gap-3 p-4">
-            {loadingCommunities ? <LoadingState message="Loading communities" /> : null}
-            {!loadingCommunities && communities.length === 0 ? <EmptyState title="No communities found" /> : null}
-            {!loadingCommunities &&
-              communities.map((community) => (
-                <Pressable key={community.id} onPress={() => selectCommunity(community)}>
-                  <CommunityCard community={community} />
-                </Pressable>
-              ))}
-          </View>
-        ) : (
-          <View>
-            <View className="border-b border-border bg-lightBackground p-4">
-              <Text className="text-xs font-semibold uppercase text-textGrey">Reviewing</Text>
-              <Text className="mt-1 text-lg font-bold text-textDark">{selectedCommunity.name}</Text>
-              <Pressable className="mt-2" onPress={() => setSelectedCommunity(null)}>
-                <Text className="text-sm font-semibold text-primary">Change community</Text>
-              </Pressable>
+    <DashboardLayout title="Post Approvals" nav={["Dashboard", "Access Requests", "Post Approvals", "Members", "Events", "Settings"]}>
+      <View style={styles.grid}>
+        {posts.map(([author, type, title, content]) => (
+          <WebCard key={title} style={styles.card}>
+            <View style={styles.header}>
+              <WebAvatar name={author} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.author}>{author}</Text>
+                <Text style={styles.muted}>Submitted for review</Text>
+              </View>
+              <WebBadge label={type} />
             </View>
-            <View className="gap-3 p-4">
-              {loadingPosts ? <LoadingState message="Loading pending posts" /> : null}
-              {!loadingPosts && error ? <EmptyState title="Posts unavailable" message={error} icon="alert-circle-outline" /> : null}
-              {!loadingPosts && !error && posts.length === 0 ? <EmptyState title="No pending posts" /> : null}
-              {!loadingPosts &&
-                !error &&
-                posts.map((post) => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/admin/post-review",
-                        params: { postId: post.id, communityId: selectedCommunity.id }
-                      })
-                    }
-                  />
-                ))}
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.muted}>{content}</Text>
+            <View style={styles.media}><Text style={styles.muted}>Media preview</Text></View>
+            <WebTextarea label="Rejection reason" placeholder="Add reason before rejecting..." />
+            <View style={styles.actions}>
+              <WebButton label="Approve" icon="check" />
+              <WebButton label="Reject" variant="danger" icon="close" />
             </View>
-          </View>
-        )}
-      </ScreenContainer>
-    </>
+          </WebCard>
+        ))}
+      </View>
+    </DashboardLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
+  card: { width: "48%", minWidth: 360, gap: spacing.md },
+  header: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  author: { color: colors.onSurface, fontWeight: "800" },
+  title: { ...typography.bodyLgStrong, color: colors.onSurface, fontFamily: typography.familyBold },
+  muted: { color: colors.textGrey, lineHeight: 21 },
+  media: { height: 120, borderRadius: radius.md, alignItems: "center", justifyContent: "center", backgroundColor: colors.surfaceContainerLow },
+  actions: { flexDirection: "row", gap: spacing.sm }
+});

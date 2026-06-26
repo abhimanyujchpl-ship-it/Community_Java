@@ -12,6 +12,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LoadingState } from "@/components/common/LoadingState";
 import { colors } from "@/constants/colors";
+import { MobileShell } from "@/components/layout/MobileShell";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function RootLayout() {
@@ -29,11 +30,15 @@ export default function RootLayout() {
   }, [bootstrap]);
 
   if (!fontsLoaded) {
-    return <LoadingState message="Opening app" />;
+    return (
+      <MobileShell>
+        <LoadingState message="Opening app" />
+      </MobileShell>
+    );
   }
 
   return (
-    <>
+    <MobileShell>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -41,6 +46,6 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.surface }
         }}
       />
-    </>
+    </MobileShell>
   );
 }

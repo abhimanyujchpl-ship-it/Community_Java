@@ -1,150 +1,194 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Redirect, router } from "expo-router";
-import { Platform, Pressable, Text, View } from "react-native";
-import { LoadingState } from "@/components/common/LoadingState";
-import { Screen } from "@/components/layout/Screen";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { PublicNavbar, WebBadge, WebButton, WebCard, WebSection, WebShell, web } from "@/components/web/WebKit";
 import { colors } from "@/constants/colors";
-import { useAuthStore } from "@/store/auth.store";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 
-function WebAction({
-  label,
-  icon,
-  onPress,
-  primary = false
-}: {
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  onPress: () => void;
-  primary?: boolean;
-}) {
+const features = [
+  ["Member Profiles", "Verified member records with role and access status.", "person"],
+  ["Community Access", "Approve requests and keep private spaces protected.", "verified-user"],
+  ["Post Approval", "Review posts before they appear in the community feed.", "rate-review"],
+  ["Event Calendar", "Create events, reminders, and calendar views.", "event"],
+  ["Notifications", "Unread counts and alerts for important updates.", "notifications"],
+  ["Admin Dashboard", "Track members, posts, requests, events, and activity.", "dashboard"]
+] as const;
+
+export default function LandingPage() {
   return (
-    <Pressable
-      className={`min-h-12 flex-row items-center justify-center gap-2 rounded-lg px-4 py-3 ${
-        primary ? "bg-primary" : "border border-border bg-white"
-      }`}
-      onPress={onPress}
-    >
-      <Ionicons name={icon} size={18} color={primary ? colors.white : colors.primary} />
-      <Text className={`text-center text-sm font-bold ${primary ? "text-white" : "text-primary"}`} numberOfLines={1}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
-function WebPreviewCard({
-  title,
-  subtitle,
-  icon,
-  className = ""
-}: {
-  title: string;
-  subtitle: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  className?: string;
-}) {
-  return (
-    <View className={`rounded-lg border border-border bg-white p-4 ${className}`}>
-      <View className="mb-3 h-10 w-10 items-center justify-center rounded-full bg-lightBackground">
-        <Ionicons name={icon} size={20} color={colors.primary} />
-      </View>
-      <Text className="text-base font-bold text-textDark" numberOfLines={1}>
-        {title}
-      </Text>
-      <Text className="mt-1 text-sm leading-5 text-textGrey" numberOfLines={3}>
-        {subtitle}
-      </Text>
-    </View>
-  );
-}
-
-function WebHomeScreen({
-  isAuthenticated,
-  role
-}: {
-  isAuthenticated: boolean;
-  role?: string;
-}) {
-  const continuePath = role === "MEMBER" ? "/tabs/community" : "/admin/dashboard";
-
-  return (
-    <Screen>
-      <View className="mx-auto w-full max-w-6xl gap-6 py-4">
-        <View className="rounded-lg bg-primary p-5">
-          <Text className="text-sm font-bold uppercase text-white/80">Community App Web</Text>
-          <Text className="mt-3 text-3xl font-bold text-white" numberOfLines={3}>
-            A clean WhatsApp-like web view for community management.
-          </Text>
-          <Text className="mt-3 max-w-3xl text-base leading-6 text-white/85">
-            Visualize member feeds, access requests, post approvals, events, calendars, notifications, and admin workflows from the browser.
-          </Text>
-          <View className="mt-5 flex-row flex-wrap gap-3">
-            {isAuthenticated ? (
-              <WebAction label="Continue app" icon="arrow-forward" primary onPress={() => router.push(continuePath)} />
-            ) : (
-              <>
-                <WebAction label="Sign in" icon="log-in-outline" primary onPress={() => router.push("/auth/login")} />
-                <WebAction label="Create account" icon="person-add-outline" onPress={() => router.push("/auth/register")} />
-              </>
-            )}
-            <WebAction label="Browse communities" icon="people-outline" onPress={() => router.push("/community/search")} />
+    <WebShell>
+      <PublicNavbar onNavigate={(path) => router.push(path as never)} />
+      <WebSection>
+        <View style={styles.hero}>
+          <View style={styles.heroCopy}>
+            <WebBadge label="WhatsApp-inspired community platform" tone="success" />
+            <Text style={styles.heroTitle}>Manage your community in one simple platform</Text>
+            <Text style={styles.heroSubtitle}>
+              Join communities, manage members, approve posts, schedule events, and send reminders from a calm professional workspace.
+            </Text>
+            <View style={styles.heroActions}>
+              <WebButton label="Create Account" icon="person-add-alt" onPress={() => router.push("/auth/register")} />
+              <WebButton label="Browse Communities" variant="secondary" icon="search" onPress={() => router.push("/community/search")} />
+            </View>
           </View>
-        </View>
-
-        <View className="flex-row flex-wrap gap-4">
-          <WebPreviewCard className="min-w-[240px] flex-1" title="Member workspace" subtitle="Feed previews, announcements, my posts, reminders, and notification shortcuts." icon="chatbubbles-outline" />
-          <WebPreviewCard className="min-w-[240px] flex-1" title="Admin dashboard" subtitle="Pending access requests, post approvals, member counts, events, and recent activity." icon="speedometer-outline" />
-          <WebPreviewCard className="min-w-[240px] flex-1" title="Community operations" subtitle="Search communities, request access, manage posts, create events, and track unread updates." icon="calendar-outline" />
-        </View>
-
-        <View className="flex-row flex-wrap gap-4">
-          <View className="min-w-[280px] flex-1 rounded-lg border border-border bg-white p-4">
-            <Text className="text-lg font-bold text-textDark">Member flow</Text>
-            {["Register or sign in", "Search community", "Send access request", "Open dashboard after approval", "Create posts and view events"].map((item) => (
-              <View key={item} className="mt-3 flex-row items-center gap-3">
-                <View className="h-7 w-7 items-center justify-center rounded-full bg-accent">
-                  <Ionicons name="checkmark" size={16} color={colors.white} />
+          <WebCard style={styles.preview}>
+            <View style={styles.previewHeader}>
+              <Text style={styles.previewTitle}>Green Valley Residents</Text>
+              <WebBadge label="Live" tone="success" />
+            </View>
+            {[
+              ["Community feed", "3 approved updates today", "forum"],
+              ["Pending approvals", "8 access requests waiting", "pending-actions"],
+              ["Upcoming events", "Meetup tomorrow, 6:30 PM", "event"]
+            ].map(([title, body, icon]) => (
+              <View key={title} style={styles.previewRow}>
+                <View style={styles.previewIcon}><MaterialIcons name={icon as keyof typeof MaterialIcons.glyphMap} size={20} color={colors.primary} /></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.previewRowTitle}>{title}</Text>
+                  <Text style={styles.previewRowBody}>{body}</Text>
                 </View>
-                <Text className="flex-1 text-sm font-medium text-textDark">{item}</Text>
               </View>
             ))}
-          </View>
-
-          <View className="min-w-[280px] flex-1 rounded-lg border border-border bg-white p-4">
-            <Text className="text-lg font-bold text-textDark">Admin flow</Text>
-            {["Review access requests", "Approve or reject posts", "Manage members", "Create events", "Monitor notifications"].map((item) => (
-              <View key={item} className="mt-3 flex-row items-center gap-3">
-                <View className="h-7 w-7 items-center justify-center rounded-full bg-primary">
-                  <Ionicons name="shield-checkmark" size={15} color={colors.white} />
-                </View>
-                <Text className="flex-1 text-sm font-medium text-textDark">{item}</Text>
-              </View>
-            ))}
-          </View>
+          </WebCard>
         </View>
+
+        <View id="features" style={styles.featureGrid}>
+          {features.map(([title, body, icon]) => (
+            <WebCard key={title} style={styles.featureCard}>
+              <View style={styles.featureIcon}><MaterialIcons name={icon} size={22} color={colors.primary} /></View>
+              <Text style={styles.featureTitle}>{title}</Text>
+              <Text style={styles.featureBody}>{body}</Text>
+            </WebCard>
+          ))}
+        </View>
+      </WebSection>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Community Connect</Text>
+        <Pressable onPress={() => router.push("/auth/login")}>
+          <Text style={styles.footerLink}>Login</Text>
+        </Pressable>
       </View>
-    </Screen>
+    </WebShell>
   );
 }
 
-export default function HomeScreen() {
-  const { bootstrapped, isAuthenticated, user } = useAuthStore();
-
-  if (!bootstrapped) {
-    return (
-      <Screen>
-        <LoadingState message="Opening app" />
-      </Screen>
-    );
+const styles = StyleSheet.create({
+  hero: {
+    minHeight: 520,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 36,
+    paddingVertical: 54
+  },
+  heroCopy: {
+    flex: 1,
+    gap: spacing.lg
+  },
+  heroTitle: {
+    fontSize: 56,
+    lineHeight: 62,
+    fontWeight: "800",
+    color: colors.onSurface,
+    fontFamily: typography.familyExtraBold
+  },
+  heroSubtitle: {
+    maxWidth: 650,
+    fontSize: 18,
+    lineHeight: 28,
+    color: colors.textGrey,
+    fontFamily: typography.family
+  },
+  heroActions: {
+    flexDirection: "row",
+    gap: spacing.md,
+    flexWrap: "wrap"
+  },
+  preview: {
+    width: 390,
+    gap: spacing.md,
+    backgroundColor: colors.primary
+  },
+  previewHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
+  previewTitle: {
+    ...typography.bodyLgStrong,
+    color: colors.onPrimary,
+    fontFamily: typography.familyBold
+  },
+  previewRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    backgroundColor: "rgba(255,255,255,0.10)"
+  },
+  previewIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.accentGreen
+  },
+  previewRowTitle: {
+    color: colors.onPrimary,
+    fontWeight: "800"
+  },
+  previewRowBody: {
+    marginTop: 3,
+    color: "rgba(255,255,255,0.75)"
+  },
+  featureGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.md,
+    paddingBottom: 60
+  },
+  featureCard: {
+    width: "31%",
+    minWidth: 280,
+    gap: spacing.sm
+  },
+  featureIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surfaceContainerLow
+  },
+  featureTitle: {
+    ...typography.bodyLgStrong,
+    color: colors.onSurface,
+    fontFamily: typography.familyBold
+  },
+  featureBody: {
+    ...typography.bodyMd,
+    color: colors.textGrey,
+    fontFamily: typography.family
+  },
+  footer: {
+    minHeight: 82,
+    borderTopWidth: 1,
+    borderTopColor: colors.outlineVariant,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 28,
+    backgroundColor: colors.surfaceContainerLowest
+  },
+  footerText: {
+    color: colors.onSurface,
+    fontWeight: "800"
+  },
+  footerLink: {
+    color: colors.primary,
+    fontWeight: "800"
   }
-
-  if (Platform.OS === "web") {
-    return <WebHomeScreen isAuthenticated={isAuthenticated} role={user?.role} />;
-  }
-
-  if (!isAuthenticated) {
-    return <Redirect href="/auth/login" />;
-  }
-
-  return <Redirect href={user?.role === "MEMBER" ? "/tabs/community" : "/admin/access-requests"} />;
-}
+});

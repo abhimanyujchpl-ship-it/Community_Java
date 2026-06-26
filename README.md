@@ -36,13 +36,20 @@ community-app/
 ## Mobile Setup
 
 ```bash
+cd apps/mobile
 npm install
-npm --workspace apps/mobile run start
-npm --workspace apps/mobile run web
-npm --workspace apps/mobile run typecheck
+npx expo start
+npx expo start --web
+npm run typecheck
 ```
 
-Set `EXPO_PUBLIC_API_URL` in `apps/mobile/.env`. Do not hardcode API URLs in source files.
+Set `EXPO_PUBLIC_API_BASE_URL` in `apps/mobile/.env` when the API is not on browser localhost. Do not hardcode API URLs in source files.
+
+```text
+Web browser:     EXPO_PUBLIC_API_BASE_URL=http://localhost:8080/api
+Android emulator: EXPO_PUBLIC_API_BASE_URL=http://10.0.2.2:8080/api
+Physical phone: EXPO_PUBLIC_API_BASE_URL=http://YOUR_LOCAL_IP:8080/api
+```
 
 Included mobile foundations:
 
@@ -64,25 +71,28 @@ Create a PostgreSQL database and user, then configure environment variables from
 PowerShell example:
 
 ```powershell
+cd apps/backend
 $env:SPRING_PROFILES_ACTIVE="dev"
 $env:DATABASE_URL="jdbc:postgresql://localhost:5433/community_app"
 $env:DATABASE_USERNAME="community_app"
 $env:DATABASE_PASSWORD="Abhi_1208"
 $env:JWT_SECRET="replace-with-at-least-32-byte-secret"
-mvn -f apps/backend/pom.xml spring-boot:run
+mvn spring-boot:run
 ```
 
 Build and test commands:
 
 ```bash
-mvn -f apps/backend/pom.xml clean install
-mvn -f apps/backend/pom.xml test
+cd apps/backend
+mvn clean install
+mvn test
 ```
 
 OpenAPI endpoints:
 
 - Swagger UI: `http://localhost:8080/api/docs/swagger`
 - OpenAPI JSON: `http://localhost:8080/api/docs/api`
+- App health: `http://localhost:8080/api/health`
 - Health: `http://localhost:8080/api/actuator/health`
 
 Included backend foundations:

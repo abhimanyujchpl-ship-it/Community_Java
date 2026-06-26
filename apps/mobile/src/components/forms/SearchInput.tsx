@@ -1,13 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
-import { TextInput, TextInputProps, View } from "react-native";
+import { StyleSheet, TextInput, TextInputProps, View } from "react-native";
 import { colors } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
 
 export function SearchInput({ className = "", placeholder = "Search", ...props }: TextInputProps) {
   return (
-    <View className={`min-h-12 flex-row items-center rounded-full border border-border bg-white px-4 ${className}`}>
+    <View className={className} style={styles.root}>
       <Ionicons name="search" size={20} color={colors.textGrey} />
       <TextInput
-        className="ml-2 flex-1 text-base text-textDark"
+        style={styles.input}
         placeholder={placeholder}
         placeholderTextColor={colors.textGrey}
         {...props}
@@ -15,3 +17,22 @@ export function SearchInput({ className = "", placeholder = "Search", ...props }
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLowest,
+    paddingHorizontal: spacing.md
+  },
+  input: {
+    flex: 1,
+    marginLeft: spacing.sm,
+    color: colors.onSurface,
+    fontSize: 16
+  }
+});

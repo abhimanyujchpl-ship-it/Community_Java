@@ -258,6 +258,12 @@ public class PostService {
         }
     }
 
+    private void ensureCommunityAdmin(Community community, User user) {
+        if (!isCommunityAdmin(community, user)) {
+            throw new AccessDeniedException("Community admin access is required");
+        }
+    }
+
     private void ensurePending(Post post) {
         if (post.getStatus() != PostStatus.PENDING_APPROVAL) {
             throw new BadRequestException("Only pending posts can be reviewed");
