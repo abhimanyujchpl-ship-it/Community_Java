@@ -60,7 +60,7 @@ export default function AccessRequestScreen() {
         {!loading && community ? (
           <View className="gap-4">
             <CommunityCard community={community} />
-            <View className="rounded-xl border border-border bg-white p-4">
+            <View className="rounded-lg border border-border bg-white p-4">
               <Text className="mb-3 text-base font-semibold text-textDark">Message to admin</Text>
               <TextField
                 label="Request message"

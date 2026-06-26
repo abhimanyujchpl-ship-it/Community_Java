@@ -61,7 +61,7 @@ export default function CreatePostScreen() {
     <>
       <AppHeader title="Create Post" showNotifications={false} />
       <ScreenContainer>
-        <View className="gap-4 rounded-xl border border-border bg-white p-4">
+        <View className="gap-4 rounded-lg border border-border bg-white p-4">
           <Text className="text-base font-semibold text-textDark">Post type</Text>
           <View className="flex-row flex-wrap gap-2">
             {postTypes.map((type) => (
@@ -70,7 +70,7 @@ export default function CreatePostScreen() {
                 className={`rounded-full px-3 py-2 text-sm font-semibold ${postType === type ? "bg-primary text-white" : "bg-lightBackground text-textGrey"}`}
                 onPress={() => setValue("postType", type, { shouldValidate: true })}
               >
-                {type.replaceAll("_", " ")}
+                {type.replace(/_/g, " ")}
               </Text>
             ))}
           </View>

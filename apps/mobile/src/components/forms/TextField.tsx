@@ -8,14 +8,14 @@ interface TextFieldProps extends TextInputProps {
 
 export function TextField({ label, error, className = "", ...props }: TextFieldProps) {
   return (
-    <View className="gap-1">
+    <View className="gap-1.5">
       <Text className="text-sm font-medium text-textDark">{label}</Text>
       <TextInput
-        className={`rounded-lg border border-border bg-white px-3 py-3 text-base text-textDark ${className}`}
+        className={`min-h-12 rounded-lg border border-border bg-white px-3 py-3 text-base text-textDark ${error ? "border-danger" : ""} ${className}`}
         placeholderTextColor={colors.textGrey}
         {...props}
       />
-      {error ? <Text className="text-sm text-danger">{error}</Text> : null}
+      {error ? <Text className="text-sm text-danger" numberOfLines={2}>{error}</Text> : null}
     </View>
   );
 }

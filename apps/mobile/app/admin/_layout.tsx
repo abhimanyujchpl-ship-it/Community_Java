@@ -17,17 +17,18 @@ export default function AdminTabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
-          height: 64,
+          height: 66,
           paddingBottom: 8,
-          paddingTop: 6
+          paddingTop: 6,
+          borderTopWidth: 1
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: "600"
         }
       }}
     >
-      <Tabs.Screen name="dashboard" options={{ title: "Dashboard", tabBarIcon: tabBarIcon("speedometer-outline") }} />
+      <Tabs.Screen name="dashboard" options={{ title: "Home", tabBarIcon: tabBarIcon("speedometer-outline") }} />
       <Tabs.Screen name="access-requests" options={{ title: "Requests", tabBarIcon: tabBarIcon("person-add-outline") }} />
       <Tabs.Screen name="post-approvals" options={{ title: "Posts", tabBarIcon: tabBarIcon("document-text-outline") }} />
       <Tabs.Screen name="members" options={{ title: "Members", tabBarIcon: tabBarIcon("people-outline") }} />

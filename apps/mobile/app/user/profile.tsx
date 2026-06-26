@@ -66,7 +66,7 @@ export default function ProfileScreen() {
     <>
       <AppHeader title="Edit Profile" showSearch={false} showNotifications={false} />
       <ScreenContainer>
-        <View className="gap-4 rounded-xl border border-border bg-white p-4">
+        <View className="gap-4 rounded-lg border border-border bg-white p-4">
           {(["fullName", "email", "mobile", "city", "state", "occupation", "profilePhotoUrl"] as const).map((name) => (
             <Controller
               key={name}

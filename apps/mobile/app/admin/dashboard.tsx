@@ -77,7 +77,7 @@ export default function AdminDashboardScreen() {
       <AppHeader
         title="Admin"
         notificationCount={dashboard?.notificationsCount ?? 0}
-        onNotificationsPress={() => router.push("/notifications")}
+        onNotificationsPress={() => router.push("/tabs/notifications")}
       />
       <ScreenContainer>
         {loading ? <LoadingState message="Loading admin dashboard" /> : null}
@@ -86,7 +86,7 @@ export default function AdminDashboardScreen() {
           <View className="gap-4">
             <View className="rounded-lg bg-primary p-4">
               <Text className="text-xs font-semibold uppercase text-white/80">Community profile</Text>
-              <Text className="mt-1 text-2xl font-bold text-white">{dashboard.community.name}</Text>
+              <Text className="mt-1 text-2xl font-bold text-white" numberOfLines={2}>{dashboard.community.name}</Text>
               <Text className="mt-1 text-sm text-white/85">
                 {dashboard.community.city}, {dashboard.community.state}
               </Text>

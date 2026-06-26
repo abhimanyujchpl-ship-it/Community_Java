@@ -17,12 +17,13 @@ export default function BottomTabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
-          height: 64,
+          height: 66,
           paddingBottom: 8,
-          paddingTop: 6
+          paddingTop: 6,
+          borderTopWidth: 1
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: "600"
         }
       }}
@@ -30,7 +31,7 @@ export default function BottomTabsLayout() {
       <Tabs.Screen name="feed" options={{ title: "Feed", tabBarIcon: tabBarIcon("chatbubble-ellipses-outline") }} />
       <Tabs.Screen name="events" options={{ title: "Events", tabBarIcon: tabBarIcon("calendar-outline") }} />
       <Tabs.Screen name="community" options={{ title: "Community", tabBarIcon: tabBarIcon("people-outline") }} />
-      <Tabs.Screen name="notifications" options={{ title: "Notifications", tabBarIcon: tabBarIcon("notifications-outline") }} />
+      <Tabs.Screen name="notifications" options={{ title: "Alerts", tabBarIcon: tabBarIcon("notifications-outline") }} />
       <Tabs.Screen name="profile" options={{ title: "Profile", tabBarIcon: tabBarIcon("person-circle-outline") }} />
     </Tabs>
   );

@@ -11,8 +11,14 @@ export function ScreenContainer({ children, scroll = true, padded = true, classN
   const content = <View className={`flex-1 ${padded ? "px-4 py-4" : ""} ${className}`}>{children}</View>;
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      {scroll ? <ScrollView keyboardShouldPersistTaps="handled">{content}</ScrollView> : content}
+    <SafeAreaView className="flex-1 bg-lightBackground">
+      {scroll ? (
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
+          {content}
+        </ScrollView>
+      ) : (
+        content
+      )}
     </SafeAreaView>
   );
 }

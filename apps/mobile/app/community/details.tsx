@@ -41,7 +41,7 @@ export default function CommunityDetailsScreen() {
         {!loading && community ? (
           <View className="gap-4">
             <CommunityCard community={community} />
-            <View className="rounded-xl border border-border bg-white p-4">
+            <View className="rounded-lg border border-border bg-white p-4">
               <Text className="text-base font-semibold text-textDark">About</Text>
               <Text className="mt-2 text-sm leading-5 text-textGrey">
                 {community.description ?? "No description has been added for this community yet."}

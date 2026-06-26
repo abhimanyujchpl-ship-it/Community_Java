@@ -43,7 +43,7 @@ export default function LoginScreen() {
     <>
       <AppHeader title="Sign in" showSearch={false} showNotifications={false} showMenu={false} />
       <Screen>
-        <View className="gap-4 rounded-xl border border-border bg-white p-4">
+        <View className="gap-4 rounded-lg border border-border bg-white p-4">
           <Text className="text-xl font-bold text-textDark">Welcome back</Text>
           <Controller
             control={control}

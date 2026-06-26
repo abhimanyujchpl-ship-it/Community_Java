@@ -27,14 +27,18 @@ export function WhatsAppStyleListItem({
   onPress
 }: WhatsAppStyleListItemProps) {
   return (
-    <Pressable className={`flex-row items-center px-4 py-3 ${className}`} onPress={onPress}>
+    <Pressable className={`min-h-16 flex-row items-center px-4 py-3 active:bg-lightBackground ${className}`} onPress={onPress}>
       {leftSlot ?? <UserAvatar name={avatarName ?? title} />}
       <View className="ml-3 flex-1 border-b border-border pb-3">
         <View className="flex-row items-start justify-between gap-3">
           <Text className="flex-1 text-base font-semibold text-textDark" numberOfLines={1}>
             {title}
           </Text>
-          {rightText ? <Text className="text-xs text-textGrey">{rightText}</Text> : null}
+          {rightText ? (
+            <Text className="max-w-[96px] text-right text-xs text-textGrey" numberOfLines={1}>
+              {rightText}
+            </Text>
+          ) : null}
         </View>
         <View className="mt-1 flex-row items-center justify-between gap-3">
           <Text className="flex-1 text-sm text-textGrey" numberOfLines={1}>

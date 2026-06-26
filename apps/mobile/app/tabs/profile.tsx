@@ -21,15 +21,15 @@ export default function ProfileTabScreen() {
     <>
       <AppHeader title="Profile" showSearch={false} showNotifications={false} />
       <ScreenContainer>
-        <View className="items-center rounded-xl border border-border bg-white p-5">
+        <View className="items-center rounded-lg border border-border bg-white p-5">
           <UserAvatar name={user?.fullName ?? "Member"} size="lg" />
-          <Text className="mt-3 text-xl font-bold text-textDark">{user?.fullName ?? "Member"}</Text>
-          <Text className="mt-1 text-sm text-textGrey">{user?.mobile ?? ""}</Text>
+          <Text className="mt-3 text-center text-xl font-bold text-textDark" numberOfLines={2}>{user?.fullName ?? "Member"}</Text>
+          <Text className="mt-1 text-sm text-textGrey" numberOfLines={1}>{user?.mobile ?? ""}</Text>
           <View className="mt-3">
-            <StatusBadge label={user?.role?.replaceAll("_", " ") ?? "MEMBER"} tone="success" />
+            <StatusBadge label={user?.role?.replace(/_/g, " ") ?? "MEMBER"} tone="success" />
           </View>
         </View>
-        <View className="mt-4 overflow-hidden rounded-xl border border-border bg-white">
+        <View className="mt-4 overflow-hidden rounded-lg border border-border bg-white">
           <WhatsAppStyleListItem title="Edit profile" subtitle={user?.email ?? "Update your details"} rightText="Open" onPress={() => router.push("/user/profile")} />
           <WhatsAppStyleListItem title="My posts" subtitle="Track approvals and rejections" rightText="View" onPress={() => router.push("/posts/my-posts")} />
           <WhatsAppStyleListItem title="Notifications" subtitle="Unread alerts and approvals" rightText="Open" onPress={() => router.push("/tabs/notifications")} />

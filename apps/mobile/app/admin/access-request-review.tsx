@@ -86,7 +86,7 @@ export default function AdminAccessRequestReviewScreen() {
         {!loading && error ? <EmptyState title="Request unavailable" message={error} icon="alert-circle-outline" /> : null}
         {!loading && request ? (
           <View className="gap-4">
-            <View className="items-center rounded-xl border border-border bg-white p-5">
+            <View className="items-center rounded-lg border border-border bg-white p-5">
               <UserAvatar name={request.user.fullName} size="lg" />
               <Text className="mt-3 text-xl font-bold text-textDark">{request.user.fullName}</Text>
               <Text className="mt-1 text-sm text-textGrey">{request.user.mobile}</Text>
@@ -95,14 +95,14 @@ export default function AdminAccessRequestReviewScreen() {
                 <StatusBadge label={request.status} tone={accessRequestTone(request.status)} />
               </View>
             </View>
-            <View className="rounded-xl border border-border bg-white p-4">
+            <View className="rounded-lg border border-border bg-white p-4">
               <Text className="text-sm font-semibold text-textGrey">Community</Text>
               <Text className="mt-1 text-lg font-bold text-textDark">{request.community.name}</Text>
               <Text className="mt-1 text-sm text-textGrey">
                 {request.community.city}, {request.community.state}
               </Text>
             </View>
-            <View className="rounded-xl border border-border bg-white p-4">
+            <View className="rounded-lg border border-border bg-white p-4">
               <Text className="text-sm font-semibold text-textGrey">Request message</Text>
               <Text className="mt-2 text-sm leading-5 text-textDark">{request.requestMessage ?? "No message provided."}</Text>
             </View>

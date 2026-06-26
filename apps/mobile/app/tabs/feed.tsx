@@ -37,9 +37,9 @@ export default function FeedTabScreen() {
       <AppHeader title="Feed" notificationCount={notificationCount} onNotificationsPress={() => router.push("/tabs/notifications")} />
       <ScreenContainer>
         <SearchInput value={query} onChangeText={setQuery} placeholder="Search community feed" />
-        <Pressable className="mt-4 rounded-xl border border-border bg-white p-4" onPress={() => router.push("/posts/my-posts")}>
+        <Pressable className="mt-4 rounded-lg border border-border bg-white p-4 active:bg-lightBackground" onPress={() => router.push("/posts/my-posts")}>
           <Text className="text-base font-bold text-textDark">My Posts</Text>
-          <Text className="mt-1 text-sm text-textGrey">View pending, approved, and rejected posts.</Text>
+          <Text className="mt-1 text-sm text-textGrey" numberOfLines={2}>View pending, approved, and rejected posts.</Text>
         </Pressable>
         <View className="mt-4 gap-3">
           {loading ? <LoadingState message="Loading communities" /> : null}

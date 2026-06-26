@@ -54,7 +54,7 @@ export default function MembersScreen() {
               key={member.id}
               title={member.fullName}
               subtitle={`${member.email} · ${member.mobile}`}
-              rightText={member.role.replaceAll("_", " ")}
+              rightText={member.role.replace(/_/g, " ")}
               badgeLabel={member.status}
               badgeTone={member.status === "ACTIVE" ? "success" : "warning"}
             />

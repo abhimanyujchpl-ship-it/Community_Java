@@ -64,7 +64,7 @@ export default function CommunityDashboardScreen() {
       <AppHeader
         title="Dashboard"
         notificationCount={dashboard?.notificationsCount ?? 0}
-        onNotificationsPress={() => router.push("/notifications")}
+        onNotificationsPress={() => router.push("/tabs/notifications")}
       />
       <ScreenContainer>
         {loading ? <LoadingState message="Loading dashboard" /> : null}
@@ -73,7 +73,7 @@ export default function CommunityDashboardScreen() {
           <View className="gap-4">
             <View className="rounded-lg bg-white p-4">
               <Text className="text-sm font-medium text-textGrey">Welcome back</Text>
-              <Text className="mt-1 text-2xl font-bold text-textDark">{user?.name ?? "Member"}</Text>
+              <Text className="mt-1 text-2xl font-bold text-textDark" numberOfLines={2}>{user?.name ?? "Member"}</Text>
               <Text className="mt-2 text-sm leading-5 text-textGrey">
                 Here is what is new in {dashboard.community.name}.
               </Text>
@@ -83,7 +83,7 @@ export default function CommunityDashboardScreen() {
               <View className="flex-row items-start justify-between gap-3">
                 <View className="flex-1">
                   <Text className="text-xs font-semibold uppercase text-primary">Community</Text>
-                  <Text className="mt-1 text-xl font-bold text-textDark">{dashboard.community.name}</Text>
+                  <Text className="mt-1 text-xl font-bold text-textDark" numberOfLines={2}>{dashboard.community.name}</Text>
                   <Text className="mt-1 text-sm text-textGrey">
                     {dashboard.community.city}, {dashboard.community.state}
                   </Text>
@@ -111,7 +111,7 @@ export default function CommunityDashboardScreen() {
               <Shortcut
                 label="Notify"
                 icon="notifications-outline"
-                onPress={() => router.push("/notifications")}
+                onPress={() => router.push("/tabs/notifications")}
               />
               <Shortcut
                 label="Post"

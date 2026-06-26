@@ -9,7 +9,7 @@ interface FloatingActionButtonProps extends PressableProps {
 export function FloatingActionButton({ icon = "add", className = "", ...props }: FloatingActionButtonProps) {
   return (
     <Pressable
-      className={`absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-full bg-accent shadow ${className}`}
+      className={`absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-full bg-accent shadow active:opacity-90 ${className}`}
       accessibilityRole="button"
       {...props}
     >

@@ -11,18 +11,18 @@ interface EventCardProps {
 
 export function EventCard({ event, onPress }: EventCardProps) {
   return (
-    <Pressable className="overflow-hidden rounded-xl border border-border bg-white" onPress={onPress}>
+    <Pressable className="overflow-hidden rounded-lg border border-border bg-white active:bg-lightBackground" onPress={onPress}>
       {event.bannerUrl ? <Image source={{ uri: event.bannerUrl }} className="h-40 bg-lightBackground" /> : null}
       <View className="p-4">
         <View className="flex-row items-start justify-between gap-3">
           <View className="flex-1">
-            <Text className="text-xs font-semibold uppercase text-primary">{event.eventType}</Text>
-            <Text className="mt-1 text-lg font-bold text-textDark">{event.title}</Text>
+            <Text className="text-xs font-semibold uppercase text-primary" numberOfLines={1}>{event.eventType}</Text>
+            <Text className="mt-1 text-lg font-bold text-textDark" numberOfLines={2}>{event.title}</Text>
           </View>
           <StatusBadge label={event.status} tone={eventStatusTone(event.status)} />
         </View>
-        <Text className="mt-3 text-sm font-semibold text-textDark">{formatDate(event.startDateTime)}</Text>
-        <Text className="mt-1 text-sm text-textGrey">{event.location}</Text>
+        <Text className="mt-3 text-sm font-semibold text-textDark" numberOfLines={1}>{formatDate(event.startDateTime)}</Text>
+        <Text className="mt-1 text-sm text-textGrey" numberOfLines={1}>{event.location}</Text>
         {event.description ? (
           <Text className="mt-3 text-sm leading-5 text-textGrey" numberOfLines={2}>
             {event.description}

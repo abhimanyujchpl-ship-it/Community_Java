@@ -53,7 +53,7 @@ export default function RegisterScreen() {
     <>
       <AppHeader title="Create account" showSearch={false} showNotifications={false} showMenu={false} />
       <ScreenContainer>
-        <View className="gap-4 rounded-xl border border-border bg-white p-4">
+        <View className="gap-4 rounded-lg border border-border bg-white p-4">
           <Text className="text-xl font-bold text-textDark">Join your community</Text>
           {(["fullName", "email", "mobile", "password", "city", "state", "occupation"] as const).map((name) => (
             <Controller

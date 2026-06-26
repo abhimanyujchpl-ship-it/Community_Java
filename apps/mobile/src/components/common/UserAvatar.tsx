@@ -26,8 +26,10 @@ export function UserAvatar({ name, size = "md" }: UserAvatarProps) {
     .join("");
 
   return (
-    <View className={`${sizeClasses[size]} items-center justify-center rounded-full bg-primary`}>
-      <Text className={`${textClasses[size]} font-bold text-white`}>{initials || "U"}</Text>
+    <View className={`${sizeClasses[size]} shrink-0 items-center justify-center rounded-full bg-primary`}>
+      <Text className={`${textClasses[size]} font-bold text-white`} numberOfLines={1}>
+        {initials || "U"}
+      </Text>
     </View>
   );
 }

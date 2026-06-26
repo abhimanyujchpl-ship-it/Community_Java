@@ -11,7 +11,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const location = [community.city, community.state].filter(Boolean).join(", ");
 
   return (
-    <View className="rounded-xl border border-border bg-white p-4">
+    <View className="rounded-lg border border-border bg-white p-4">
       <View className="flex-row gap-3">
         {community.logoUrl ? (
           <Image source={{ uri: community.logoUrl }} className="h-14 w-14 rounded-full bg-lightBackground" />
@@ -20,14 +20,14 @@ export function CommunityCard({ community }: CommunityCardProps) {
         )}
         <View className="flex-1">
           <View className="flex-row items-start justify-between gap-3">
-            <Text className="flex-1 text-lg font-semibold text-textDark">{community.name}</Text>
+            <Text className="flex-1 text-lg font-semibold text-textDark" numberOfLines={2}>{community.name}</Text>
             <StatusBadge label={community.status} tone={community.status === "ACTIVE" ? "success" : "neutral"} />
           </View>
-          <Text className="mt-1 text-sm text-textGrey">{location}</Text>
+          <Text className="mt-1 text-sm text-textGrey" numberOfLines={1}>{location}</Text>
           <Text className="mt-2 text-sm text-textGrey" numberOfLines={2}>
             {community.description ?? "Community"}
           </Text>
-          <Text className="mt-3 text-xs font-medium text-primary">{community.memberCount} members</Text>
+          <Text className="mt-3 text-xs font-medium text-primary" numberOfLines={1}>{community.memberCount} members</Text>
         </View>
       </View>
     </View>

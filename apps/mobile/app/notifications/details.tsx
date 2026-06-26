@@ -42,11 +42,11 @@ export default function NotificationDetailsScreen() {
         {loading ? <LoadingState message="Loading notification" /> : null}
         {!loading && error ? <EmptyState title="Notification unavailable" message={error} icon="alert-circle-outline" /> : null}
         {!loading && notification ? (
-          <View className="rounded-xl border border-border bg-white p-5">
+          <View className="rounded-lg border border-border bg-white p-5">
             <View className="mb-4 h-12 w-12 items-center justify-center rounded-full bg-lightBackground">
               <Ionicons name="notifications-outline" size={24} color={colors.primary} />
             </View>
-            <StatusBadge label={notification.type.replaceAll("_", " ")} tone={notification.isRead ? "neutral" : "success"} />
+            <StatusBadge label={notification.type.replace(/_/g, " ")} tone={notification.isRead ? "neutral" : "success"} />
             <Text className="mt-4 text-2xl font-bold text-textDark">{notification.title}</Text>
             <Text className="mt-3 text-base leading-6 text-textDark">{notification.message}</Text>
             <Text className="mt-4 text-sm text-textGrey">{new Date(notification.createdAt).toLocaleString()}</Text>

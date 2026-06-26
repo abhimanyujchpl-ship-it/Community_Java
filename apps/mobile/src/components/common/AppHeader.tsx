@@ -26,15 +26,17 @@ export function AppHeader({
   return (
     <View className="bg-primary px-4 pb-3 pt-4">
       <View className="min-h-11 flex-row items-center justify-between">
-        <Text className="text-2xl font-bold text-white">{title}</Text>
-        <View className="flex-row items-center gap-1">
+        <Text className="mr-3 flex-1 text-2xl font-bold text-white" numberOfLines={1}>
+          {title}
+        </Text>
+        <View className="flex-row items-center">
           {showSearch ? (
-            <Pressable className="h-10 w-10 items-center justify-center rounded-full" onPress={onSearchPress}>
+            <Pressable className="h-11 w-11 items-center justify-center rounded-full active:bg-white/10" onPress={onSearchPress}>
               <Ionicons name="search" size={22} color={colors.white} />
             </Pressable>
           ) : null}
           {showNotifications ? (
-            <Pressable className="h-10 w-10 items-center justify-center rounded-full" onPress={onNotificationsPress}>
+            <Pressable className="h-11 w-11 items-center justify-center rounded-full active:bg-white/10" onPress={onNotificationsPress}>
               <Ionicons name="notifications-outline" size={22} color={colors.white} />
               {notificationCount > 0 ? (
                 <View className="absolute right-1 top-1 min-h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1">
@@ -44,7 +46,7 @@ export function AppHeader({
             </Pressable>
           ) : null}
           {showMenu ? (
-            <Pressable className="h-10 w-10 items-center justify-center rounded-full" onPress={onMenuPress}>
+            <Pressable className="h-11 w-11 items-center justify-center rounded-full active:bg-white/10" onPress={onMenuPress}>
               <Ionicons name="ellipsis-vertical" size={21} color={colors.white} />
             </Pressable>
           ) : null}

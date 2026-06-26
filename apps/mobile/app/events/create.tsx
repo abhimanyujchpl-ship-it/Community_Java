@@ -105,7 +105,7 @@ export default function CreateEventScreen() {
     <>
       <AppHeader title={eventId ? "Edit Event" : "Create Event"} showNotifications={false} />
       <ScreenContainer>
-        <View className="gap-4 rounded-xl border border-border bg-white p-4">
+        <View className="gap-4 rounded-lg border border-border bg-white p-4">
           {(["title", "eventType", "location", "startDateTime", "endDateTime", "organizerName", "bannerUrl", "description"] as const).map((name) => (
             <Controller
               key={name}

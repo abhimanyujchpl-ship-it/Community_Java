@@ -69,7 +69,7 @@ export default function EventDetailsScreen() {
         {!loading && error ? <EmptyState title="Event unavailable" message={error} icon="alert-circle-outline" /> : null}
         {!loading && event ? (
           <View className="gap-4">
-            <View className="overflow-hidden rounded-xl border border-border bg-white">
+            <View className="overflow-hidden rounded-lg border border-border bg-white">
               {event.bannerUrl ? <Image source={{ uri: event.bannerUrl }} className="h-48 bg-lightBackground" /> : null}
               <View className="p-4">
                 <View className="flex-row items-start justify-between gap-3">
@@ -84,7 +84,7 @@ export default function EventDetailsScreen() {
                 {event.description ? <Text className="mt-4 text-sm leading-5 text-textDark">{event.description}</Text> : null}
               </View>
             </View>
-            <View className="rounded-xl border border-border bg-white p-4">
+            <View className="rounded-lg border border-border bg-white p-4">
               <Text className="text-base font-bold text-textDark">Reminders</Text>
               <Text className="mt-1 text-sm text-textGrey">
                 {event.reminders.length

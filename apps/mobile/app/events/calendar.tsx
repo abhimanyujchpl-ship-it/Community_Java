@@ -48,7 +48,7 @@ export default function EventCalendarScreen() {
           !error &&
           Object.entries(grouped).map(([date, items]) => (
             <View key={date} className="mb-5 gap-3">
-              <View className="rounded-xl bg-primary px-4 py-3">
+              <View className="rounded-lg bg-primary px-4 py-3">
                 <Text className="text-base font-bold text-white">{date}</Text>
               </View>
               {items.map((event) => (

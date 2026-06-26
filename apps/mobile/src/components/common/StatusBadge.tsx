@@ -16,8 +16,10 @@ const toneClasses: Record<StatusTone, string> = {
 
 export function StatusBadge({ label, tone = "neutral" }: StatusBadgeProps) {
   return (
-    <View className={`rounded-full px-2.5 py-1 ${toneClasses[tone]}`}>
-      <Text className="text-xs font-semibold text-white">{label}</Text>
+    <View className={`max-w-[120px] rounded-full px-2.5 py-1 ${toneClasses[tone]}`}>
+      <Text className="text-xs font-semibold text-white" numberOfLines={1}>
+        {label.replace(/_/g, " ")}
+      </Text>
     </View>
   );
 }

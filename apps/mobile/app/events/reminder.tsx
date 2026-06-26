@@ -47,7 +47,7 @@ export default function ReminderSettingsScreen() {
     <>
       <AppHeader title="Reminder" showNotifications={false} />
       <ScreenContainer>
-        <View className="gap-4 rounded-xl border border-border bg-white p-4">
+        <View className="gap-4 rounded-lg border border-border bg-white p-4">
           <Text className="text-base font-semibold text-textDark">Reminder type</Text>
           <View className="flex-row flex-wrap gap-2">
             {reminderTypes.map((type) => (
@@ -56,7 +56,7 @@ export default function ReminderSettingsScreen() {
                 className={`rounded-full px-3 py-2 text-sm font-semibold ${reminderType === type ? "bg-primary text-white" : "bg-lightBackground text-textGrey"}`}
                 onPress={() => setReminderType(type)}
               >
-                {type.replaceAll("_", " ")}
+                {type.replace(/_/g, " ")}
               </Text>
             ))}
           </View>

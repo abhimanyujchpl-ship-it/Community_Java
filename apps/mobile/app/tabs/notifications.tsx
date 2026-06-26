@@ -82,7 +82,7 @@ export default function NotificationsTabScreen() {
               title={notification.title}
               subtitle={notification.message}
               rightText={new Date(notification.createdAt).toLocaleDateString()}
-              badgeLabel={notification.type.replaceAll("_", " ")}
+              badgeLabel={notification.type.replace(/_/g, " ")}
               badgeTone={notification.isRead ? "neutral" : "success"}
               className={notification.isRead ? "bg-white" : "bg-notificationUnread"}
               leftSlot={
