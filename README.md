@@ -65,7 +65,7 @@ PowerShell example:
 $env:SPRING_PROFILES_ACTIVE="dev"
 $env:DATABASE_URL="jdbc:postgresql://localhost:5432/community_app"
 $env:DATABASE_USERNAME="community_app"
-$env:DATABASE_PASSWORD="community_app"
+$env:DATABASE_PASSWORD="Abhi_1208"
 $env:JWT_SECRET="replace-with-at-least-32-byte-secret"
 mvn -f apps/backend/pom.xml spring-boot:run
 ```
