@@ -70,8 +70,8 @@ public class EventController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get event by UUID")
-    public ApiResponse<EventResponse> getById(@PathVariable UUID id) {
-        return ApiResponse.ok("Event retrieved", eventService.getById(id));
+    public ApiResponse<EventResponse> getById(@PathVariable UUID id, @AuthenticationPrincipal UserPrincipal principal) {
+        return ApiResponse.ok("Event retrieved", eventService.getById(id, principal.getId()));
     }
 
     @PatchMapping("/{id}")

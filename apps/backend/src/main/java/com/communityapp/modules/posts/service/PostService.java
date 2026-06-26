@@ -85,6 +85,7 @@ public class PostService {
     public PageResponse<PostResponse> pending(UUID communityId, UUID reviewerId, Pageable pageable) {
         Community community = findCommunity(communityId);
         User reviewer = findUser(reviewerId);
+        ensureCommunityAdmin(community, reviewer);
 
         return PageResponse.from(postRepository.findByCommunityAndStatusAndAuthorNotOrderByCreatedAtDesc(
                         community,

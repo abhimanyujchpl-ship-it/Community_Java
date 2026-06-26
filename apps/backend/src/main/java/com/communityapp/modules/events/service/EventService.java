@@ -95,8 +95,10 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public EventResponse getById(UUID id) {
-        return eventMapper.toResponse(findEvent(id));
+    public EventResponse getById(UUID id, UUID userId) {
+        Event event = findEvent(id);
+        ensureCanViewCommunityContent(event.getCommunity(), findUser(userId));
+        return eventMapper.toResponse(event);
     }
 
     @Transactional

@@ -1,5 +1,5 @@
 import { ApiResponse, PageResponse, UserSummary } from "@/types";
-import { api } from "./api";
+import { api, unwrapPageItems, unwrapRequired } from "./api";
 
 export interface UpdateUserPayload {
   fullName?: string;
@@ -14,10 +14,10 @@ export interface UpdateUserPayload {
 export const userService = {
   list: async (query = "") => {
     const response = await api.get<ApiResponse<PageResponse<UserSummary>>>("/users", { params: { query } });
-    return response.data.data.items;
+    return unwrapPageItems(response.data);
   },
   update: async (userId: string, payload: UpdateUserPayload) => {
     const response = await api.patch<ApiResponse<UserSummary>>(`/users/${userId}`, payload);
-    return response.data.data;
+    return unwrapRequired(response.data, "User response was empty");
   }
 };

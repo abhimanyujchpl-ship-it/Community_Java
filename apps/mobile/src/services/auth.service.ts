@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { ApiResponse, AuthResponse, AuthUser, UserSummary } from "@/types";
-import { api } from "./api";
+import { api, unwrapRequired } from "./api";
 
 export interface LoginPayload {
   emailOrMobile: string;
@@ -36,15 +36,15 @@ export function mapAuthUser(user: UserSummary): AuthUser {
 export const authService = {
   login: async (payload: LoginPayload) => {
     const response = await api.post<ApiResponse<AuthResponse>>("/auth/login", payload);
-    return response.data.data;
+    return unwrapRequired(response.data, "Login response was empty");
   },
   register: async (payload: RegisterPayload) => {
     const response = await api.post<ApiResponse<AuthResponse>>("/auth/register", payload);
-    return response.data.data;
+    return unwrapRequired(response.data, "Registration response was empty");
   },
   me: async () => {
     const response = await api.get<ApiResponse<UserSummary>>("/auth/me");
-    return response.data.data;
+    return unwrapRequired(response.data, "Current user response was empty");
   },
   saveToken: (token: string) => SecureStore.setItemAsync("accessToken", token),
   getToken: () => SecureStore.getItemAsync("accessToken"),
