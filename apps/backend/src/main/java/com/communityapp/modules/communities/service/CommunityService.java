@@ -1,5 +1,6 @@
 package com.communityapp.modules.communities.service;
 
+import com.communityapp.common.dto.PageResponse;
 import com.communityapp.common.exception.ResourceNotFoundException;
 import com.communityapp.modules.communities.dto.CommunityResponse;
 import com.communityapp.modules.communities.dto.CreateCommunityRequest;
@@ -15,11 +16,12 @@ import com.communityapp.modules.users.entity.User;
 import com.communityapp.modules.users.entity.UserRole;
 import com.communityapp.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,19 +34,18 @@ public class CommunityService {
     private final CommunityMapper communityMapper;
 
     @Transactional(readOnly = true)
-    public List<CommunityResponse> search(String query) {
+    public PageResponse<CommunityResponse> search(String query, Pageable pageable) {
         String safeQuery = query == null ? "" : query.trim();
-        List<Community> communities = safeQuery.isBlank()
-                ? communityRepository.findAll()
+        Page<Community> communities = safeQuery.isBlank()
+                ? communityRepository.findAll(pageable)
                 : communityRepository.findByNameContainingIgnoreCaseOrCityContainingIgnoreCaseOrStateContainingIgnoreCase(
                 safeQuery,
                 safeQuery,
-                safeQuery
+                safeQuery,
+                pageable
         );
 
-        return communities.stream()
-                .map(communityMapper::toResponse)
-                .toList();
+        return PageResponse.from(communities.map(communityMapper::toResponse));
     }
 
     @Transactional(readOnly = true)

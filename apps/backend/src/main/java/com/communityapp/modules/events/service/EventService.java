@@ -1,8 +1,10 @@
 package com.communityapp.modules.events.service;
 
+import com.communityapp.common.dto.PageResponse;
 import com.communityapp.common.exception.BadRequestException;
 import com.communityapp.common.exception.ResourceNotFoundException;
 import com.communityapp.modules.communities.entity.Community;
+import com.communityapp.modules.communities.entity.CommunityMemberRole;
 import com.communityapp.modules.communities.entity.CommunityMemberStatus;
 import com.communityapp.modules.communities.repository.CommunityMemberRepository;
 import com.communityapp.modules.communities.repository.CommunityRepository;
@@ -19,12 +21,14 @@ import com.communityapp.modules.events.repository.EventRepository;
 import com.communityapp.modules.notifications.service.NotificationService;
 import com.communityapp.modules.notifications.entity.NotificationType;
 import com.communityapp.modules.users.entity.User;
+import com.communityapp.modules.users.entity.UserRole;
 import com.communityapp.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -44,6 +48,7 @@ public class EventService {
         validateDateRange(request.startDateTime(), request.endDateTime());
         Community community = findCommunity(request.communityId());
         User creator = findUser(creatorId);
+        ensureCommunityAdmin(community, creator);
 
         Event event = new Event();
         event.setCommunity(community);
@@ -65,21 +70,28 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventResponse> byCommunity(UUID communityId) {
+    public PageResponse<EventResponse> byCommunity(UUID communityId, EventStatus status, UUID userId, Pageable pageable) {
         Community community = findCommunity(communityId);
+        User user = findUser(userId);
+        ensureCanViewCommunityContent(community, user);
 
-        return eventRepository.findByCommunityOrderByStartDateTimeAsc(community).stream()
-                .map(eventMapper::toResponse)
-                .toList();
+        if (status == null) {
+            return PageResponse.from(eventRepository.findByCommunityOrderByStartDateTimeAsc(community, pageable)
+                    .map(eventMapper::toResponse));
+        }
+
+        return PageResponse.from(eventRepository.findByCommunityAndStatusOrderByStartDateTimeAsc(community, status, pageable)
+                .map(eventMapper::toResponse));
     }
 
     @Transactional(readOnly = true)
-    public List<EventResponse> upcoming(UUID communityId) {
+    public PageResponse<EventResponse> upcoming(UUID communityId, UUID userId, Pageable pageable) {
         Community community = findCommunity(communityId);
+        User user = findUser(userId);
+        ensureCanViewCommunityContent(community, user);
 
-        return eventRepository.findByCommunityAndStatusOrderByStartDateTimeAsc(community, EventStatus.UPCOMING).stream()
-                .map(eventMapper::toResponse)
-                .toList();
+        return PageResponse.from(eventRepository.findByCommunityAndStatusOrderByStartDateTimeAsc(community, EventStatus.UPCOMING, pageable)
+                .map(eventMapper::toResponse));
     }
 
     @Transactional(readOnly = true)
@@ -88,8 +100,9 @@ public class EventService {
     }
 
     @Transactional
-    public EventResponse update(UUID id, UpdateEventRequest request) {
+    public EventResponse update(UUID id, UpdateEventRequest request, UUID userId) {
         Event event = findEvent(id);
+        ensureCommunityAdmin(event.getCommunity(), findUser(userId));
         if (event.getStatus() == EventStatus.CANCELLED) {
             throw new BadRequestException("Cancelled events cannot be edited");
         }
@@ -127,16 +140,18 @@ public class EventService {
     }
 
     @Transactional
-    public EventResponse cancel(UUID id) {
+    public EventResponse cancel(UUID id, UUID userId) {
         Event event = findEvent(id);
+        ensureCommunityAdmin(event.getCommunity(), findUser(userId));
         event.setStatus(EventStatus.CANCELLED);
         Event saved = eventRepository.save(event);
         return eventMapper.toResponse(saved);
     }
 
     @Transactional
-    public EventResponse complete(UUID id) {
+    public EventResponse complete(UUID id, UUID userId) {
         Event event = findEvent(id);
+        ensureCommunityAdmin(event.getCommunity(), findUser(userId));
         if (event.getStatus() == EventStatus.CANCELLED) {
             throw new BadRequestException("Cancelled events cannot be completed");
         }
@@ -145,8 +160,9 @@ public class EventService {
     }
 
     @Transactional
-    public EventResponse addReminder(UUID eventId, CreateEventReminderRequest request) {
+    public EventResponse addReminder(UUID eventId, CreateEventReminderRequest request, UUID userId) {
         Event event = findEvent(eventId);
+        ensureCommunityAdmin(event.getCommunity(), findUser(userId));
         EventReminder reminder = new EventReminder();
         reminder.setEvent(event);
         reminder.setReminderType(request.reminderType());
@@ -173,6 +189,32 @@ public class EventService {
                         body,
                         "{\"eventId\":\"" + eventId + "\",\"communityId\":\"" + community.getId() + "\"}"
                 ));
+    }
+
+    private void ensureCommunityAdmin(Community community, User user) {
+        boolean isSuperAdmin = user.getRole() == UserRole.SUPER_ADMIN;
+        boolean isCommunityAdmin = communityMemberRepository.existsByCommunityAndUserAndRoleInCommunityAndStatus(
+                community,
+                user,
+                CommunityMemberRole.ADMIN,
+                CommunityMemberStatus.ACTIVE
+        );
+
+        if (!isSuperAdmin && !isCommunityAdmin) {
+            throw new AccessDeniedException("Community admin access is required");
+        }
+    }
+
+    private void ensureCanViewCommunityContent(Community community, User user) {
+        boolean isActiveMember = communityMemberRepository.existsByCommunityAndUserAndStatus(
+                community,
+                user,
+                CommunityMemberStatus.ACTIVE
+        );
+
+        if (!isActiveMember && user.getRole() != UserRole.SUPER_ADMIN) {
+            throw new AccessDeniedException("Approved community membership is required");
+        }
     }
 
     private Event findEvent(UUID id) {

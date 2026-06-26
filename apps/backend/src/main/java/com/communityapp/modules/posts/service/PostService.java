@@ -1,8 +1,10 @@
 package com.communityapp.modules.posts.service;
 
+import com.communityapp.common.dto.PageResponse;
 import com.communityapp.common.exception.BadRequestException;
 import com.communityapp.common.exception.ResourceNotFoundException;
 import com.communityapp.modules.communities.entity.Community;
+import com.communityapp.modules.communities.entity.CommunityMemberRole;
 import com.communityapp.modules.communities.entity.CommunityMemberStatus;
 import com.communityapp.modules.communities.repository.CommunityMemberRepository;
 import com.communityapp.modules.communities.repository.CommunityRepository;
@@ -14,17 +16,20 @@ import com.communityapp.modules.posts.dto.RejectPostRequest;
 import com.communityapp.modules.posts.dto.UpdatePostRequest;
 import com.communityapp.modules.posts.entity.Post;
 import com.communityapp.modules.posts.entity.PostStatus;
+import com.communityapp.modules.posts.entity.PostType;
 import com.communityapp.modules.posts.mapper.PostMapper;
 import com.communityapp.modules.posts.repository.PostRepository;
 import com.communityapp.modules.users.entity.User;
+import com.communityapp.modules.users.entity.UserRole;
 import com.communityapp.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -57,38 +62,37 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> feed(UUID communityId) {
+    public PageResponse<PostResponse> feed(UUID communityId, PostType postType, UUID userId, Pageable pageable) {
         Community community = findCommunity(communityId);
+        User user = findUser(userId);
+        ensureCanViewCommunityContent(community, user);
+        Page<Post> posts = postType == null
+                ? postRepository.findByCommunityAndStatusOrderByCreatedAtDesc(community, PostStatus.APPROVED, pageable)
+                : postRepository.findByCommunityAndStatusAndPostTypeOrderByCreatedAtDesc(community, PostStatus.APPROVED, postType, pageable);
 
-        return postRepository.findByCommunityAndStatusOrderByCreatedAtDesc(community, PostStatus.APPROVED)
-                .stream()
-                .map(postMapper::toResponse)
-                .toList();
+        return PageResponse.from(posts.map(postMapper::toResponse));
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> myPosts(UUID authorId) {
+    public PageResponse<PostResponse> myPosts(UUID authorId, Pageable pageable) {
         User author = findUser(authorId);
 
-        return postRepository.findByAuthorAndStatusNotOrderByCreatedAtDesc(author, PostStatus.DELETED)
-                .stream()
-                .map(postMapper::toResponse)
-                .toList();
+        return PageResponse.from(postRepository.findByAuthorAndStatusNotOrderByCreatedAtDesc(author, PostStatus.DELETED, pageable)
+                .map(postMapper::toResponse));
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> pending(UUID communityId, UUID reviewerId) {
+    public PageResponse<PostResponse> pending(UUID communityId, UUID reviewerId, Pageable pageable) {
         Community community = findCommunity(communityId);
         User reviewer = findUser(reviewerId);
 
-        return postRepository.findByCommunityAndStatusAndAuthorNotOrderByCreatedAtDesc(
+        return PageResponse.from(postRepository.findByCommunityAndStatusAndAuthorNotOrderByCreatedAtDesc(
                         community,
                         PostStatus.PENDING_APPROVAL,
-                        reviewer
+                        reviewer,
+                        pageable
                 )
-                .stream()
-                .map(postMapper::toResponse)
-                .toList();
+                .map(postMapper::toResponse));
     }
 
     @Transactional(readOnly = true)
@@ -226,6 +230,18 @@ public class PostService {
         }
     }
 
+    private void ensureCanViewCommunityContent(Community community, User user) {
+        boolean isActiveMember = communityMemberRepository.existsByCommunityAndUserAndStatus(
+                community,
+                user,
+                CommunityMemberStatus.ACTIVE
+        );
+
+        if (!isActiveMember && !isAppAdmin(user)) {
+            throw new AccessDeniedException("Approved community membership is required");
+        }
+    }
+
     private void ensureAuthor(Post post, UUID userId) {
         if (!post.getAuthor().getId().equals(userId)) {
             throw new AccessDeniedException("Only the author can modify this post");
@@ -233,7 +249,7 @@ public class PostService {
     }
 
     private void ensureAdminNotAuthor(Post post, User reviewer) {
-        if (!isAppAdmin(reviewer)) {
+        if (!isCommunityAdmin(post.getCommunity(), reviewer)) {
             throw new AccessDeniedException("Only community admins can review posts");
         }
         if (post.getAuthor().getId().equals(reviewer.getId())) {
@@ -248,8 +264,18 @@ public class PostService {
     }
 
     private boolean isAppAdmin(User user) {
-        return user.getRole() == com.communityapp.modules.users.entity.UserRole.SUPER_ADMIN
-                || user.getRole() == com.communityapp.modules.users.entity.UserRole.COMMUNITY_ADMIN;
+        return user.getRole() == UserRole.SUPER_ADMIN
+                || user.getRole() == UserRole.COMMUNITY_ADMIN;
+    }
+
+    private boolean isCommunityAdmin(Community community, User user) {
+        return user.getRole() == UserRole.SUPER_ADMIN
+                || communityMemberRepository.existsByCommunityAndUserAndRoleInCommunityAndStatus(
+                community,
+                user,
+                CommunityMemberRole.ADMIN,
+                CommunityMemberStatus.ACTIVE
+        );
     }
 
     private Post findVisiblePost(UUID id) {

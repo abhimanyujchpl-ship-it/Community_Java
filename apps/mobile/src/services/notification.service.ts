@@ -1,11 +1,11 @@
 import * as Notifications from "expo-notifications";
-import { ApiResponse, AppNotification } from "@/types";
+import { ApiResponse, AppNotification, PageResponse } from "@/types";
 import { api } from "./api";
 
 export const notificationService = {
   list: async () => {
-    const response = await api.get<ApiResponse<AppNotification[]>>("/notifications");
-    return response.data.data;
+    const response = await api.get<ApiResponse<PageResponse<AppNotification>>>("/notifications");
+    return response.data.data.items;
   },
   unreadCount: async () => {
     const response = await api.get<ApiResponse<{ count: number }>>("/notifications/unread-count");

@@ -11,7 +11,7 @@ export const routes = {
   communityDashboard: "/community/dashboard",
   feed: "/posts/feed",
   createPost: "/posts/create",
-  myPosts: "/posts/my",
+  myPosts: "/posts/my-posts",
   postDetails: "/posts/details",
   events: "/events/list",
   createEvent: "/events/create",
@@ -23,6 +23,6 @@ export const routes = {
   adminAccessRequestReview: "/admin/access-request-review",
   adminPostApprovals: "/admin/post-approvals",
   adminPostReview: "/admin/post-review",
-  notifications: "/notifications",
+  notifications: "/tabs/notifications",
   settings: "/settings"
 } as const;

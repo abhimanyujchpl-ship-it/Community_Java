@@ -1,5 +1,5 @@
 import { EmptyState } from "@/components/lists/EmptyState";
-import { AppHeader } from "@/components/headers/AppHeader";
+import { AppHeader } from "@/components/common/AppHeader";
 import { ScreenContainer } from "@/components/layout/ScreenContainer";
 
 interface PlaceholderScreenProps {

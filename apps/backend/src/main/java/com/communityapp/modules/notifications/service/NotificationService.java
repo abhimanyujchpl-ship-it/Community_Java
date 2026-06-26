@@ -1,5 +1,6 @@
 package com.communityapp.modules.notifications.service;
 
+import com.communityapp.common.dto.PageResponse;
 import com.communityapp.common.exception.ResourceNotFoundException;
 import com.communityapp.modules.communities.entity.Community;
 import com.communityapp.modules.notifications.dto.NotificationResponse;
@@ -10,11 +11,12 @@ import com.communityapp.modules.notifications.repository.NotificationRepository;
 import com.communityapp.modules.users.entity.User;
 import com.communityapp.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,12 +40,13 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getMine(UUID userId) {
+    public PageResponse<NotificationResponse> getMine(UUID userId, Boolean isRead, Pageable pageable) {
         User user = findUser(userId);
+        Page<Notification> notifications = isRead == null
+                ? notificationRepository.findByUserOrderByCreatedAtDesc(user, pageable)
+                : notificationRepository.findByUserAndIsReadOrderByCreatedAtDesc(user, isRead, pageable);
 
-        return notificationRepository.findByUserOrderByCreatedAtDesc(user).stream()
-                .map(notificationMapper::toResponse)
-                .toList();
+        return PageResponse.from(notifications.map(notificationMapper::toResponse));
     }
 
     @Transactional(readOnly = true)

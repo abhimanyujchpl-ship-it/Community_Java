@@ -8,10 +8,10 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 public record CreatePostRequest(
-        @NotNull UUID communityId,
-        @NotNull PostType postType,
-        @NotBlank @Size(min = 2, max = 180) String title,
-        @NotBlank @Size(min = 2, max = 5000) String content,
-        @Size(max = 500) String mediaUrl
+        @NotNull(message = "Community ID is required") UUID communityId,
+        @NotNull(message = "Post type is required") PostType postType,
+        @NotBlank(message = "Post title is required") @Size(min = 2, max = 180, message = "Post title must be between 2 and 180 characters") String title,
+        @NotBlank(message = "Post content is required") @Size(min = 2, max = 5000, message = "Post content must be between 2 and 5000 characters") String content,
+        @Size(max = 500, message = "Media URL must be 500 characters or fewer") String mediaUrl
 ) {
 }

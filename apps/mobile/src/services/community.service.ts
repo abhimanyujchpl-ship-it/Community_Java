@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { ApiResponse, CommunitySummary } from "@/types";
+import { ApiResponse, CommunitySummary, PageResponse } from "@/types";
 
 export interface CreateCommunityPayload {
   name: string;
@@ -15,8 +15,8 @@ export interface UpdateCommunityPayload extends Partial<CreateCommunityPayload> 
 
 export const communityService = {
   search: async (query = "") => {
-    const response = await api.get<ApiResponse<CommunitySummary[]>>("/communities", { params: { query } });
-    return response.data.data;
+    const response = await api.get<ApiResponse<PageResponse<CommunitySummary>>>("/communities", { params: { query } });
+    return response.data.data.items;
   },
   getById: async (communityId: string) => {
     const response = await api.get<ApiResponse<CommunitySummary>>(`/communities/${communityId}`);
@@ -30,5 +30,8 @@ export const communityService = {
     const response = await api.patch<ApiResponse<CommunitySummary>>(`/communities/${communityId}`, payload);
     return response.data.data;
   },
-  dashboard: (communityId: string) => api.get(`/communities/${communityId}/dashboard`)
+  dashboard: async (communityId: string) => {
+    const response = await api.get<ApiResponse<CommunitySummary>>(`/communities/${communityId}/dashboard`);
+    return response.data.data;
+  }
 };

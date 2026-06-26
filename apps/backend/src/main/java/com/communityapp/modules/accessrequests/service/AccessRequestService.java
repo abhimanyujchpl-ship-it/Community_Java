@@ -1,5 +1,6 @@
 package com.communityapp.modules.accessrequests.service;
 
+import com.communityapp.common.dto.PageResponse;
 import com.communityapp.common.exception.DuplicateResourceException;
 import com.communityapp.common.exception.ResourceNotFoundException;
 import com.communityapp.modules.accessrequests.dto.AccessRequestResponse;
@@ -18,13 +19,15 @@ import com.communityapp.modules.communities.repository.CommunityRepository;
 import com.communityapp.modules.notifications.entity.NotificationType;
 import com.communityapp.modules.notifications.service.NotificationService;
 import com.communityapp.modules.users.entity.User;
+import com.communityapp.modules.users.entity.UserRole;
 import com.communityapp.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -61,21 +64,26 @@ public class AccessRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<AccessRequestResponse> getMyRequests(UUID userId) {
+    public PageResponse<AccessRequestResponse> getMyRequests(UUID userId, Pageable pageable) {
         User user = findUser(userId);
 
-        return accessRequestRepository.findByUserOrderByCreatedAtDesc(user).stream()
-                .map(accessRequestMapper::toResponse)
-                .toList();
+        return PageResponse.from(accessRequestRepository.findByUserOrderByCreatedAtDesc(user, pageable)
+                .map(accessRequestMapper::toResponse));
     }
 
     @Transactional(readOnly = true)
-    public List<AccessRequestResponse> getCommunityRequests(UUID communityId) {
+    public PageResponse<AccessRequestResponse> getCommunityRequests(UUID communityId, AccessRequestStatus status, UUID reviewerId, Pageable pageable) {
         Community community = findCommunity(communityId);
+        User reviewer = findUser(reviewerId);
+        ensureCommunityAdmin(community, reviewer);
 
-        return accessRequestRepository.findByCommunityOrderByCreatedAtDesc(community).stream()
-                .map(accessRequestMapper::toResponse)
-                .toList();
+        if (status == null) {
+            return PageResponse.from(accessRequestRepository.findByCommunityOrderByCreatedAtDesc(community, pageable)
+                    .map(accessRequestMapper::toResponse));
+        }
+
+        return PageResponse.from(accessRequestRepository.findByCommunityAndStatusOrderByCreatedAtDesc(community, status, pageable)
+                .map(accessRequestMapper::toResponse));
     }
 
     @Transactional
@@ -84,6 +92,7 @@ public class AccessRequestService {
         User reviewer = findUser(reviewerId);
 
         ensurePending(accessRequest);
+        ensureCommunityAdmin(accessRequest.getCommunity(), reviewer);
         accessRequest.setStatus(AccessRequestStatus.APPROVED);
         accessRequest.setReviewedBy(reviewer);
         accessRequest.setReviewedAt(Instant.now());
@@ -123,6 +132,7 @@ public class AccessRequestService {
         User reviewer = findUser(reviewerId);
 
         ensurePending(accessRequest);
+        ensureCommunityAdmin(accessRequest.getCommunity(), reviewer);
         accessRequest.setStatus(AccessRequestStatus.REJECTED);
         accessRequest.setReviewedBy(reviewer);
         accessRequest.setReviewedAt(Instant.now());
@@ -143,6 +153,20 @@ public class AccessRequestService {
     private void ensurePending(AccessRequest accessRequest) {
         if (accessRequest.getStatus() != AccessRequestStatus.PENDING) {
             throw new DuplicateResourceException("Only pending access requests can be reviewed");
+        }
+    }
+
+    private void ensureCommunityAdmin(Community community, User user) {
+        boolean isSuperAdmin = user.getRole() == UserRole.SUPER_ADMIN;
+        boolean isCommunityAdmin = communityMemberRepository.existsByCommunityAndUserAndRoleInCommunityAndStatus(
+                community,
+                user,
+                CommunityMemberRole.ADMIN,
+                CommunityMemberStatus.ACTIVE
+        );
+
+        if (!isSuperAdmin && !isCommunityAdmin) {
+            throw new AccessDeniedException("Community admin access is required");
         }
     }
 

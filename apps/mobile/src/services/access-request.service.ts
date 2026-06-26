@@ -1,4 +1,4 @@
-import { AccessRequest, ApiResponse } from "@/types";
+import { AccessRequest, ApiResponse, PageResponse } from "@/types";
 import { api } from "./api";
 
 export interface CreateAccessRequestPayload {
@@ -12,12 +12,12 @@ export const accessRequestService = {
     return response.data.data;
   },
   mine: async () => {
-    const response = await api.get<ApiResponse<AccessRequest[]>>("/access-requests/my");
-    return response.data.data;
+    const response = await api.get<ApiResponse<PageResponse<AccessRequest>>>("/access-requests/my");
+    return response.data.data.items;
   },
   byCommunity: async (communityId: string) => {
-    const response = await api.get<ApiResponse<AccessRequest[]>>(`/access-requests/community/${communityId}`);
-    return response.data.data;
+    const response = await api.get<ApiResponse<PageResponse<AccessRequest>>>(`/access-requests/community/${communityId}`);
+    return response.data.data.items;
   },
   approve: async (requestId: string) => {
     const response = await api.patch<ApiResponse<AccessRequest>>(`/access-requests/${requestId}/approve`);

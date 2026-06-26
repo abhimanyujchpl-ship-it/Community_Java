@@ -4,6 +4,8 @@ import com.communityapp.modules.accessrequests.entity.AccessRequest;
 import com.communityapp.modules.accessrequests.entity.AccessRequestStatus;
 import com.communityapp.modules.communities.entity.Community;
 import com.communityapp.modules.users.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,7 +16,13 @@ public interface AccessRequestRepository extends JpaRepository<AccessRequest, UU
 
     List<AccessRequest> findByUserOrderByCreatedAtDesc(User user);
 
+    Page<AccessRequest> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+
     List<AccessRequest> findByCommunityOrderByCreatedAtDesc(Community community);
+
+    Page<AccessRequest> findByCommunityOrderByCreatedAtDesc(Community community, Pageable pageable);
+
+    Page<AccessRequest> findByCommunityAndStatusOrderByCreatedAtDesc(Community community, AccessRequestStatus status, Pageable pageable);
 
     List<AccessRequest> findTop5ByCommunityAndStatusOrderByCreatedAtDesc(Community community, AccessRequestStatus status);
 

@@ -8,3 +8,7 @@ logging:
   level:
     com.communityapp: DEBUG
     org.springframework.security: INFO
+
+app:
+  seed:
+    sample-password: ${SEED_SAMPLE_PASSWORD:ChangeMe123!}

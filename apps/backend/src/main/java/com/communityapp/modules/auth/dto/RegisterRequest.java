@@ -3,21 +3,22 @@ package com.communityapp.modules.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 public record RegisterRequest(
-        @NotBlank @Size(min = 2, max = 120) String fullName,
-        @NotBlank @Email String email,
-        @NotBlank @Size(min = 8, max = 20) String mobile,
-        @NotBlank @Size(min = 8, max = 120) String password,
+        @NotBlank(message = "Full name is required") @Size(min = 2, max = 120, message = "Full name must be between 2 and 120 characters") String fullName,
+        @NotBlank(message = "Email is required") @Email(message = "Email must be valid") String email,
+        @NotBlank(message = "Mobile number is required") @Pattern(regexp = "^[0-9]{8,15}$", message = "Mobile number must contain 8 to 15 digits") String mobile,
+        @NotBlank(message = "Password is required") @Size(min = 8, max = 120, message = "Password must be between 8 and 120 characters") String password,
         String gender,
-        @Past LocalDate dateOfBirth,
-        @Size(max = 500) String address,
-        @Size(max = 120) String city,
-        @Size(max = 120) String state,
-        @Size(max = 120) String occupation,
-        @Size(max = 500) String profilePhotoUrl
+        @Past(message = "Date of birth must be in the past") LocalDate dateOfBirth,
+        @Size(max = 500, message = "Address must be 500 characters or fewer") String address,
+        @Size(max = 120, message = "City must be 120 characters or fewer") String city,
+        @Size(max = 120, message = "State must be 120 characters or fewer") String state,
+        @Size(max = 120, message = "Occupation must be 120 characters or fewer") String occupation,
+        @Size(max = 500, message = "Profile photo URL must be 500 characters or fewer") String profilePhotoUrl
 ) {
 }

@@ -26,6 +26,13 @@ export interface AuthUser {
   id: string;
   name: string;
   phoneNumber: string;
+  fullName: string;
+  email: string;
+  mobile: string;
+  city?: string;
+  state?: string;
+  occupation?: string;
+  profilePhotoUrl?: string;
   role: UserRole;
 }
 
@@ -152,5 +159,19 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
-  timestamp: string;
+}
+
+export interface PageResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  tokenType: "Bearer";
+  expiresAt: string;
+  user: UserSummary;
 }

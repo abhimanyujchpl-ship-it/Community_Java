@@ -1,5 +1,6 @@
 package com.communityapp.modules.users.service;
 
+import com.communityapp.common.dto.PageResponse;
 import com.communityapp.common.exception.DuplicateResourceException;
 import com.communityapp.common.exception.ResourceNotFoundException;
 import com.communityapp.modules.users.dto.UpdateUserRequest;
@@ -8,10 +9,11 @@ import com.communityapp.modules.users.entity.User;
 import com.communityapp.modules.users.mapper.UserMapper;
 import com.communityapp.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,10 +24,18 @@ public class UserService {
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public List<UserResponse> getAll() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toResponse)
-                .toList();
+    public PageResponse<UserResponse> getAll(String query, Pageable pageable) {
+        String safeQuery = query == null ? "" : query.trim();
+        Page<User> users = safeQuery.isBlank()
+                ? userRepository.findAll(pageable)
+                : userRepository.findByFullNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrMobileContainingIgnoreCase(
+                        safeQuery,
+                        safeQuery,
+                        safeQuery,
+                        pageable
+                );
+
+        return PageResponse.from(users.map(userMapper::toResponse));
     }
 
     @Transactional(readOnly = true)

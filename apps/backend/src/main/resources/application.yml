@@ -2,6 +2,10 @@ server:
   port: ${SERVER_PORT:8080}
   servlet:
     context-path: /api
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
 
 spring:
   application:
@@ -11,7 +15,7 @@ spring:
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/community_app}
     username: ${DATABASE_USERNAME:community_app}
-    password: ${DATABASE_PASSWORD:community_app}
+    password: ${DATABASE_PASSWORD:}
     driver-class-name: org.postgresql.Driver
     hikari:
       initialization-fail-timeout: 0

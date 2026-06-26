@@ -1,4 +1,4 @@
-import { ApiResponse, CommunityPost, PostType } from "@/types";
+import { ApiResponse, CommunityPost, PageResponse, PostType } from "@/types";
 import { api } from "./api";
 
 export interface CreatePostPayload {
@@ -13,16 +13,16 @@ export type UpdatePostPayload = Partial<Omit<CreatePostPayload, "communityId">>;
 
 export const postService = {
   feed: async (communityId: string) => {
-    const response = await api.get<ApiResponse<CommunityPost[]>>(`/posts/feed/${communityId}`);
-    return response.data.data;
+    const response = await api.get<ApiResponse<PageResponse<CommunityPost>>>(`/posts/feed/${communityId}`);
+    return response.data.data.items;
   },
   mine: async () => {
-    const response = await api.get<ApiResponse<CommunityPost[]>>("/posts/my");
-    return response.data.data;
+    const response = await api.get<ApiResponse<PageResponse<CommunityPost>>>("/posts/my");
+    return response.data.data.items;
   },
   pending: async (communityId: string) => {
-    const response = await api.get<ApiResponse<CommunityPost[]>>(`/posts/pending/${communityId}`);
-    return response.data.data;
+    const response = await api.get<ApiResponse<PageResponse<CommunityPost>>>(`/posts/pending/${communityId}`);
+    return response.data.data.items;
   },
   create: async (payload: CreatePostPayload) => {
     const response = await api.post<ApiResponse<CommunityPost>>("/posts", payload);
