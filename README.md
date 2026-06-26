@@ -38,6 +38,7 @@ community-app/
 ```bash
 npm install
 npm --workspace apps/mobile run start
+npm --workspace apps/mobile run web
 npm --workspace apps/mobile run typecheck
 ```
 
@@ -54,6 +55,7 @@ Included mobile foundations:
 - Axios API client with SecureStore token injection
 - React Hook Form + Zod validation
 - Loading, empty, and error states for backend-backed screens
+- Web entry page for browser visualization via Expo Web
 
 ## Backend Setup
 
@@ -100,6 +102,7 @@ Included backend foundations:
 
 ```bash
 npm run mobile
+npm run mobile:web
 npm run mobile:typecheck
 npm run backend
 npm run backend:test

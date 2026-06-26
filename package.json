@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "mobile": "npm --workspace apps/mobile run start",
+    "mobile:web": "npm --workspace apps/mobile run web",
     "mobile:typecheck": "npm --workspace apps/mobile run typecheck",
     "backend": "mvn -f apps/backend/pom.xml spring-boot:run",
     "backend:test": "mvn -f apps/backend/pom.xml test"

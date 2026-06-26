@@ -12,7 +12,8 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font"
     ],
     "extra": {
       "apiUrl": "${EXPO_PUBLIC_API_URL}"
