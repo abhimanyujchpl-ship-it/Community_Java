@@ -12,8 +12,10 @@ export interface CreatePostPayload {
 export type UpdatePostPayload = Partial<Omit<CreatePostPayload, "communityId">>;
 
 export const postService = {
-  feed: async (communityId: string) => {
-    const response = await api.get<ApiResponse<PageResponse<CommunityPost>>>(`/posts/feed/${communityId}`);
+  feed: async (communityId: string, postType?: PostType) => {
+    const response = await api.get<ApiResponse<PageResponse<CommunityPost>>>(`/posts/feed/${communityId}`, {
+      params: postType ? { postType } : undefined
+    });
     return unwrapPageItems(response.data);
   },
   mine: async () => {

@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Stack, Tabs } from "expo-router";
+import { Platform } from "react-native";
 import { colors } from "@/constants/colors";
 
 const tabBarIcon =
@@ -8,6 +9,10 @@ const tabBarIcon =
     <Ionicons name={name} size={size} color={color} />;
 
 export default function AdminTabsLayout() {
+  if (Platform.OS === "web") {
+    return <Stack screenOptions={{ headerShown: false }} />;
+  }
+
   return (
     <Tabs
       screenOptions={{
@@ -32,6 +37,7 @@ export default function AdminTabsLayout() {
       <Tabs.Screen name="access-requests" options={{ title: "Requests", tabBarIcon: tabBarIcon("person-add-outline") }} />
       <Tabs.Screen name="post-approvals" options={{ title: "Posts", tabBarIcon: tabBarIcon("document-text-outline") }} />
       <Tabs.Screen name="members" options={{ title: "Members", tabBarIcon: tabBarIcon("people-outline") }} />
+      <Tabs.Screen name="events" options={{ title: "Events", tabBarIcon: tabBarIcon("calendar-outline") }} />
       <Tabs.Screen name="settings" options={{ title: "Settings", tabBarIcon: tabBarIcon("settings-outline") }} />
       <Tabs.Screen name="access-request-review" options={{ href: null }} />
       <Tabs.Screen name="post-review" options={{ href: null }} />

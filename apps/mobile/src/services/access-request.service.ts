@@ -15,8 +15,10 @@ export const accessRequestService = {
     const response = await api.get<ApiResponse<PageResponse<AccessRequest>>>("/access-requests/my");
     return unwrapPageItems(response.data);
   },
-  byCommunity: async (communityId: string) => {
-    const response = await api.get<ApiResponse<PageResponse<AccessRequest>>>(`/access-requests/community/${communityId}`);
+  byCommunity: async (communityId: string, status?: AccessRequest["status"]) => {
+    const response = await api.get<ApiResponse<PageResponse<AccessRequest>>>(`/access-requests/community/${communityId}`, {
+      params: status ? { status } : undefined
+    });
     return unwrapPageItems(response.data);
   },
   approve: async (requestId: string) => {

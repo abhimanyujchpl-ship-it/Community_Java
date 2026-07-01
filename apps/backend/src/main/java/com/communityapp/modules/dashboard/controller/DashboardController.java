@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping
+@RequestMapping("/dashboard")
 @RequiredArgsConstructor
 @Tag(name = "Dashboards", description = "Admin and member dashboard APIs")
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping("/admin/dashboard/{communityId}")
+    @GetMapping("/admin/{communityId}")
     @Operation(summary = "Get admin dashboard for a community")
     public ApiResponse<AdminDashboardDto> adminDashboard(
             @PathVariable UUID communityId,
@@ -33,7 +33,7 @@ public class DashboardController {
         return ApiResponse.ok("Admin dashboard retrieved", dashboardService.adminDashboard(communityId, principal.getId()));
     }
 
-    @GetMapping("/member/dashboard/{communityId}")
+    @GetMapping("/member/{communityId}")
     @Operation(summary = "Get member dashboard for a community")
     public ApiResponse<MemberDashboardDto> memberDashboard(
             @PathVariable UUID communityId,

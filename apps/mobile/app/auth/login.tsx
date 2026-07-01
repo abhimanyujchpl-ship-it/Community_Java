@@ -1,11 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
 import { router } from "expo-router";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { z } from "zod";
-import { PrimaryButton } from "@/components/buttons/PrimaryButton";
-import { TextField } from "@/components/forms/TextField";
+import { WebButton, WebCard, WebInput, WebShell } from "@/components/web/WebKit";
 import { colors } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { shadows } from "@/constants/shadows";
@@ -21,8 +22,25 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
+function getAuthError(error: unknown) {
+  const axiosError = error as AxiosError<{ message?: string }>;
+
+  if (!axiosError.response) {
+    return "Backend not reachable. Please start server on port 8080.";
+  }
+
+  return axiosError.response.data?.message ?? "Login failed. Check your credentials and try again.";
+}
+
+function getRedirectForRole(role: string) {
+  return role === "MEMBER" ? "/dashboard/member" : "/admin/dashboard";
+}
+
 export default function LoginScreen() {
+  const { width } = useWindowDimensions();
+  const compact = width < 700;
   const setUser = useAuthStore((state) => state.setUser);
+  const [error, setError] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
@@ -33,61 +51,70 @@ export default function LoginScreen() {
   });
 
   const onSubmit = async (values: LoginForm) => {
+    setError(null);
+
     try {
       const auth = await authService.login(values);
       await authService.saveToken(auth.accessToken);
       setUser(mapAuthUser(auth.user));
-      router.replace(auth.user.role === "MEMBER" ? "/tabs/feed" : "/admin/dashboard");
-    } catch {
-      Alert.alert("Login failed", "Backend is unreachable or the credentials are incorrect.");
+      router.replace(getRedirectForRole(auth.user.role) as never);
+    } catch (requestError) {
+      setError(getAuthError(requestError));
     }
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.root}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scroll}>
-        <View style={styles.brandPanel}>
-          <View style={styles.logoCircle}>
-            <MaterialIcons name="groups" size={34} color={colors.onPrimary} />
+    <WebShell>
+      <ScrollView contentContainerStyle={[styles.page, compact ? styles.pageCompact : null]} keyboardShouldPersistTaps="handled">
+        <WebCard style={[styles.card, compact ? styles.cardCompact : null]}>
+          <View style={styles.brand}>
+            <View style={styles.logo}>
+              <MaterialIcons name="groups" size={28} color={colors.onPrimary} />
+            </View>
+            <Text style={styles.appName}>Community Connect</Text>
           </View>
-          <Text style={styles.appName}>Community Connect</Text>
-          <Text style={styles.subtitle}>Connect with your community</Text>
-        </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Sign in</Text>
-          <Text style={styles.cardSubtitle}>Use your email or mobile number to continue.</Text>
+          <View style={styles.headingBlock}>
+            <Text style={styles.title}>Sign in</Text>
+            <Text style={styles.subtitle}>Use your email or mobile number to continue.</Text>
+          </View>
 
-          <Controller
-            control={control}
-            name="emailOrMobile"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Email or mobile"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                value={field.value}
-                onChangeText={field.onChange}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
+          <View style={styles.form}>
+            <Controller
+              control={control}
+              name="emailOrMobile"
+              render={({ field, fieldState }) => (
+                <WebInput
+                  label="Email or mobile"
+                  placeholder="admin@communityconnect.local"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="password"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Password"
-                secureTextEntry
-                value={field.value}
-                onChangeText={field.onChange}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <WebInput
+                  label="Password"
+                  placeholder="Enter your password"
+                  secureTextEntry
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </View>
 
-          <PrimaryButton fullWidth label="Sign in" loading={isSubmitting} onPress={handleSubmit(onSubmit)} />
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <WebButton label={isSubmitting ? "Signing in..." : "Sign in"} onPress={handleSubmit(onSubmit)} />
 
           <View style={styles.actions}>
             <Pressable style={styles.secondaryAction} onPress={() => router.push("/auth/register")}>
@@ -99,75 +126,92 @@ export default function LoginScreen() {
               <Text style={styles.secondaryActionText}>Browse communities</Text>
             </Pressable>
           </View>
-        </View>
+
+          <View style={styles.demoBox}>
+            <Text style={styles.demoTitle}>Demo credentials</Text>
+            <Text style={styles.demoText}>Admin: admin@communityconnect.local / Pass@123</Text>
+            <Text style={styles.demoText}>Member: member@communityconnect.local / Pass@123</Text>
+          </View>
+        </WebCard>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </WebShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
+  page: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 32,
     backgroundColor: colors.surface
   },
-  scroll: {
-    flexGrow: 1,
-    paddingBottom: spacing.xl
+  pageCompact: {
+    justifyContent: "flex-start",
+    padding: spacing.md
   },
-  brandPanel: {
-    minHeight: 260,
-    paddingHorizontal: spacing.lg,
-    paddingTop: 54,
-    paddingBottom: spacing.xl,
+  card: {
+    width: "100%",
+    maxWidth: 520,
+    gap: spacing.lg,
+    borderRadius: radius.xl,
+    padding: 30,
+    ...shadows.card
+  },
+  cardCompact: {
+    padding: spacing.lg
+  },
+  brand: {
+    alignItems: "center",
+    gap: spacing.sm
+  },
+  logo: {
+    width: 58,
+    height: 58,
+    borderRadius: 18,
+    alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primary
   },
-  logoCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.primaryContainer
-  },
   appName: {
+    ...typography.bodyLgStrong,
+    color: colors.onSurface,
+    fontFamily: typography.familyBold
+  },
+  headingBlock: {
+    alignItems: "center",
+    gap: spacing.xs
+  },
+  title: {
     ...typography.headlineMd,
-    marginTop: spacing.lg,
-    color: colors.onPrimary,
+    color: colors.onSurface,
     fontFamily: typography.familyBold
   },
   subtitle: {
     ...typography.bodyLg,
-    marginTop: spacing.xs,
-    color: "rgba(255, 255, 255, 0.82)",
-    fontFamily: typography.family
+    color: colors.textGrey,
+    fontFamily: typography.family,
+    textAlign: "center"
   },
-  card: {
-    gap: spacing.md,
-    marginHorizontal: spacing.md,
-    marginTop: -36,
-    padding: spacing.lg,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: "rgba(191, 200, 197, 0.65)",
-    backgroundColor: colors.surfaceContainerLowest,
-    ...shadows.card
+  form: {
+    gap: spacing.md
   },
-  cardTitle: {
-    ...typography.headlineSm,
-    color: colors.onSurface,
-    fontFamily: typography.familyBold
-  },
-  cardSubtitle: {
-    ...typography.bodyMd,
-    marginTop: -spacing.sm,
-    color: colors.onSurfaceVariant,
-    fontFamily: typography.family
+  error: {
+    borderRadius: radius.default,
+    padding: spacing.md,
+    color: colors.error,
+    textAlign: "center",
+    backgroundColor: colors.errorContainer,
+    fontFamily: typography.familyMedium
   },
   actions: {
-    gap: spacing.sm
+    flexDirection: "row",
+    gap: spacing.sm,
+    flexWrap: "wrap"
   },
   secondaryAction: {
+    flex: 1,
+    minWidth: 190,
     minHeight: 46,
     borderRadius: radius.full,
     flexDirection: "row",
@@ -180,5 +224,18 @@ const styles = StyleSheet.create({
     ...typography.bodyMd,
     color: colors.primary,
     fontFamily: typography.familySemiBold
+  },
+  demoBox: {
+    gap: spacing.xs,
+    borderRadius: radius.default,
+    padding: spacing.md,
+    backgroundColor: colors.surfaceContainerLow
+  },
+  demoTitle: {
+    color: colors.onSurface,
+    fontWeight: "800"
+  },
+  demoText: {
+    color: colors.textGrey
   }
 });

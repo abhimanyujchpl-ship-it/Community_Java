@@ -64,7 +64,7 @@ public class EventService {
         event.setStatus(EventStatus.UPCOMING);
 
         Event saved = eventRepository.save(event);
-        notifyActiveMembers(community, "New event: " + saved.getTitle(), "An event has been scheduled in " + community.getName(), saved.getId());
+        notifyActiveMembers(community, NotificationType.NEW_EVENT, "New event: " + saved.getTitle(), "An event has been scheduled in " + community.getName(), saved.getId());
 
         return eventMapper.toResponse(saved);
     }
@@ -172,6 +172,7 @@ public class EventService {
         reminder.setMessage(request.message());
         reminder.setSent(false);
         eventReminderRepository.save(reminder);
+        notifyActiveMembers(event.getCommunity(), NotificationType.EVENT_REMINDER, "Event reminder: " + event.getTitle(), request.message(), event.getId());
         return eventMapper.toResponse(event);
     }
 
@@ -181,12 +182,12 @@ public class EventService {
         }
     }
 
-    private void notifyActiveMembers(Community community, String title, String body, UUID eventId) {
+    private void notifyActiveMembers(Community community, NotificationType type, String title, String body, UUID eventId) {
         communityMemberRepository.findByCommunityAndStatus(community, CommunityMemberStatus.ACTIVE)
                 .forEach(member -> notificationService.create(
                         member.getUser(),
                         community,
-                        NotificationType.NEW_EVENT,
+                        type,
                         title,
                         body,
                         "{\"eventId\":\"" + eventId + "\",\"communityId\":\"" + community.getId() + "\"}"

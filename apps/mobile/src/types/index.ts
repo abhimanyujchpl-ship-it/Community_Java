@@ -41,8 +41,8 @@ export interface CommunitySummary {
   name: string;
   description?: string;
   logoUrl?: string;
-  city: string;
-  state: string;
+  city?: string;
+  state?: string;
   status: CommunityStatus;
   memberCount: number;
 }

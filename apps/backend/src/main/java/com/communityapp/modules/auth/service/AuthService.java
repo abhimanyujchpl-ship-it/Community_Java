@@ -37,9 +37,6 @@ public class AuthService {
         user.setGender(request.gender());
         user.setDateOfBirth(request.dateOfBirth());
         user.setAddress(request.address());
-        user.setCity(request.city());
-        user.setState(request.state());
-        user.setOccupation(request.occupation());
         user.setProfilePhotoUrl(request.profilePhotoUrl());
         user.setRole(UserRole.MEMBER);
 

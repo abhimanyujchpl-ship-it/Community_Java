@@ -1,4 +1,4 @@
-import { ApiResponse, CommunityEvent, PageResponse, ReminderType } from "@/types";
+import { ApiResponse, CommunityEvent, EventStatus, PageResponse, ReminderType } from "@/types";
 import { api, unwrapPageItems, unwrapRequired } from "./api";
 
 export interface CreateEventPayload {
@@ -22,8 +22,10 @@ export interface CreateEventReminderPayload {
 }
 
 export const eventService = {
-  byCommunity: async (communityId: string) => {
-    const response = await api.get<ApiResponse<PageResponse<CommunityEvent>>>(`/events/community/${communityId}`);
+  byCommunity: async (communityId: string, status?: EventStatus) => {
+    const response = await api.get<ApiResponse<PageResponse<CommunityEvent>>>(`/events/community/${communityId}`, {
+      params: status ? { status } : undefined
+    });
     return unwrapPageItems(response.data);
   },
   upcoming: async (communityId: string) => {

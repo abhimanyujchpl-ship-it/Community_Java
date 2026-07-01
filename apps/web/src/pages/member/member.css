@@ -1,0 +1,67 @@
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.page-head h1 {
+  margin: 0 0 6px;
+  color: var(--primary);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--primary);
+  padding: 9px 13px;
+  font-weight: 900;
+}
+
+.chip.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-day {
+  min-height: 78px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px;
+  text-align: left;
+}
+
+.calendar-day.has-event {
+  border-color: var(--accent);
+  background: rgba(37, 211, 102, 0.1);
+}
+
+.calendar-day.active {
+  outline: 3px solid rgba(37, 211, 102, 0.28);
+}
+
+@media (max-width: 767px) {
+  .page-head {
+    display: grid;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

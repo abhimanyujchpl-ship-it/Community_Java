@@ -10,5 +10,7 @@ logging:
     org.springframework.security: INFO
 
 app:
+  jwt:
+    secret: ${JWT_SECRET:dev-community-connect-secret-key-32-chars-minimum}
   seed:
-    sample-password: ${SEED_SAMPLE_PASSWORD:ChangeMe123!}
+    sample-password: ${SEED_SAMPLE_PASSWORD:Pass@123}

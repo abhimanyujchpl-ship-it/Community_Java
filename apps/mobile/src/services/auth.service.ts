@@ -45,9 +45,6 @@ export interface RegisterPayload {
   email: string;
   mobile: string;
   password: string;
-  city?: string;
-  state?: string;
-  occupation?: string;
 }
 
 export function mapAuthUser(user: UserSummary): AuthUser {

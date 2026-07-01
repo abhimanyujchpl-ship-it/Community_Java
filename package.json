@@ -4,13 +4,16 @@
   "private": true,
   "workspaces": [
     "apps/mobile",
+    "apps/web",
     "packages/shared"
   ],
   "scripts": {
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:backend": "cd apps/backend && .\\mvnw.cmd spring-boot:run \"-Dspring-boot.run.profiles=local\"",
     "mobile": "npm --workspace apps/mobile run start",
     "mobile:web": "npm --workspace apps/mobile run web",
     "mobile:typecheck": "npm --workspace apps/mobile run typecheck",
-    "backend": "mvn -f apps/backend/pom.xml spring-boot:run",
-    "backend:test": "mvn -f apps/backend/pom.xml test"
+    "backend": "cd apps/backend && .\\mvnw.cmd spring-boot:run",
+    "backend:test": "cd apps/backend && .\\mvnw.cmd test"
   }
 }

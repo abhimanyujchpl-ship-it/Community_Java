@@ -1,18 +1,21 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { PropsWithChildren, ReactNode } from "react";
-import { Pressable, StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import { router } from "expo-router";
+import { PropsWithChildren, ReactNode, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, useWindowDimensions } from "react-native";
 import { colors } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { shadows } from "@/constants/shadows";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { useAuthStore } from "@/store/auth.store";
 
 export function WebShell({ children }: PropsWithChildren) {
   return <View style={web.root}>{children}</View>;
 }
 
 export function WebSection({ children }: PropsWithChildren) {
-  return <View style={web.section}>{children}</View>;
+  const { width } = useWindowDimensions();
+  return <View style={[web.section, width < 640 ? web.sectionCompact : null]}>{children}</View>;
 }
 
 export function WebCard({ children, style }: PropsWithChildren<{ style?: object }>) {
@@ -23,15 +26,25 @@ export function WebButton({
   label,
   onPress,
   variant = "primary",
-  icon
+  icon,
+  disabled = false
 }: {
   label: string;
   onPress?: () => void;
   variant?: "primary" | "secondary" | "ghost" | "danger";
   icon?: keyof typeof MaterialIcons.glyphMap;
+  disabled?: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+  const interactive = hovered && !disabled;
   return (
-    <Pressable style={[web.button, web[`${variant}Button`]]} onPress={onPress}>
+    <Pressable
+      style={[web.button, web[`${variant}Button`], interactive ? web.buttonHover : null, disabled ? web.buttonDisabled : null]}
+      onHoverIn={() => setHovered(true)}
+      onHoverOut={() => setHovered(false)}
+      onPress={onPress}
+      disabled={disabled}
+    >
       {icon ? <MaterialIcons name={icon} size={18} color={variant === "primary" ? colors.onPrimary : colors.primary} /> : null}
       <Text style={[web.buttonText, variant === "primary" ? web.primaryButtonText : web.secondaryButtonText]}>{label}</Text>
     </Pressable>
@@ -81,8 +94,10 @@ export function WebAvatar({ name }: { name: string }) {
 }
 
 export function PublicNavbar({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const { width } = useWindowDimensions();
+  const compact = width < 760;
   const links = [
-    ["Features", "#features"],
+    ["Features", "/"],
     ["Communities", "/community/search"],
     ["Events", "/events"],
     ["Admin", "/admin/dashboard"],
@@ -90,13 +105,13 @@ export function PublicNavbar({ onNavigate }: { onNavigate: (path: string) => voi
   ];
 
   return (
-    <View style={web.nav}>
+    <View style={[web.nav, compact ? web.navCompact : null]}>
       <Pressable style={web.brand} onPress={() => onNavigate("/")}>
         <View style={web.brandMark}><MaterialIcons name="groups" size={22} color={colors.onPrimary} /></View>
         <Text style={web.brandText}>Community Connect</Text>
       </Pressable>
-      <View style={web.navLinks}>
-        {links.map(([label, path]) => (
+      <View style={[web.navLinks, compact ? web.navLinksCompact : null]}>
+        {(compact ? links.filter(([label]) => label === "Login") : links).map(([label, path]) => (
           <Pressable key={label} onPress={() => onNavigate(path)}>
             <Text style={web.navLink}>{label}</Text>
           </Pressable>
@@ -107,37 +122,88 @@ export function PublicNavbar({ onNavigate }: { onNavigate: (path: string) => voi
   );
 }
 
+const navRoutes: Record<string, string> = {
+  Dashboard: "/dashboard/member",
+  Feed: "/feed",
+  Communities: "/community/search",
+  Events: "/events",
+  Calendar: "/events/calendar",
+  Notifications: "/notifications",
+  Profile: "/profile",
+  "Access Requests": "/admin/access-requests",
+  "Post Approvals": "/admin/post-approvals",
+  Members: "/admin/members",
+  Settings: "/admin/settings"
+};
+
 export function DashboardLayout({ nav, title, children, right }: PropsWithChildren<{ nav: string[]; title: string; right?: ReactNode }>) {
+  const { width } = useWindowDimensions();
+  const compact = width < 900;
+  const adminNav = nav.includes("Access Requests");
+  const signOut = useAuthStore((state) => state.signOut);
+  const goToNav = (item: string) => {
+    if (adminNav && item === "Dashboard") {
+      router.push("/admin/dashboard" as never);
+      return;
+    }
+
+    if (adminNav && item === "Events") {
+      router.push("/admin/events" as never);
+      return;
+    }
+
+    router.push((navRoutes[item] ?? "/") as never);
+  };
+  const logout = async () => {
+    await signOut();
+    router.replace("/auth/login" as never);
+  };
+
   return (
     <WebShell>
-      <View style={web.dashboard}>
-        <View style={web.sidebar}>
+      <View style={[web.dashboard, compact ? web.dashboardCompact : null]}>
+        <View style={[web.sidebar, compact ? web.sidebarCompact : null]}>
           <View style={web.brand}>
             <View style={web.brandMark}><MaterialIcons name="groups" size={20} color={colors.onPrimary} /></View>
             <Text style={web.brandText}>Community Connect</Text>
           </View>
-          {nav.map((item) => (
-            <View key={item} style={web.sideItem}>
-              <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
-              <Text style={web.sideText}>{item}</Text>
-            </View>
-          ))}
+          {compact ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={web.sideScroll}>
+              {nav.map((item) => (
+                <Pressable key={item} style={web.sideItemCompact} onPress={() => goToNav(item)}>
+                  <Text style={web.sideText}>{item}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          ) : (
+            nav.map((item) => (
+              <Pressable key={item} style={web.sideItem} onPress={() => goToNav(item)}>
+                <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
+                <Text style={web.sideText}>{item}</Text>
+              </Pressable>
+            ))
+          )}
         </View>
         <View style={web.main}>
-          <View style={web.topbar}>
+          <View style={[web.topbar, compact ? web.topbarCompact : null]}>
             <Text style={web.pageTitle}>{title}</Text>
-            <View style={web.topbarRight}>
-              <View style={web.searchBar}>
+            <View style={[web.topbarRight, compact ? web.topbarRightCompact : null]}>
+              <View style={[web.searchBar, compact ? web.searchBarCompact : null]}>
                 <MaterialIcons name="search" size={18} color={colors.textGrey} />
-                <Text style={web.searchText}>Search</Text>
+                <TextInput style={web.searchInput} placeholder="Search" placeholderTextColor={colors.textGrey} />
               </View>
-              <MaterialIcons name="notifications-none" size={24} color={colors.primary} />
-              <WebAvatar name="Admin" />
+              <Pressable onPress={() => router.push("/notifications" as never)}>
+                <MaterialIcons name="notifications-none" size={24} color={colors.primary} />
+              </Pressable>
+              <Pressable onPress={() => router.push("/profile" as never)}>
+                <WebAvatar name="Admin" />
+              </Pressable>
+              <WebButton label="Logout" variant="ghost" icon="logout" onPress={logout} />
             </View>
           </View>
-          <View style={web.dashboardBody}>
+          <View style={[web.dashboardBody, compact ? web.dashboardBodyCompact : null]}>
             <View style={web.dashboardContent}>{children}</View>
-            {right ? <View style={web.rightPanel}>{right}</View> : null}
+            {right ? <View style={[web.rightPanel, compact ? web.rightPanelCompact : null]}>{right}</View> : null}
           </View>
         </View>
       </View>
@@ -167,6 +233,9 @@ export const web = StyleSheet.create({
     alignSelf: "center",
     paddingHorizontal: 28
   },
+  sectionCompact: {
+    paddingHorizontal: spacing.md
+  },
   nav: {
     minHeight: 74,
     flexDirection: "row",
@@ -176,6 +245,11 @@ export const web = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.outlineVariant,
     backgroundColor: colors.surfaceContainerLowest
+  },
+  navCompact: {
+    alignItems: "flex-start",
+    gap: spacing.md,
+    paddingVertical: spacing.md
   },
   brand: {
     flexDirection: "row",
@@ -200,13 +274,18 @@ export const web = StyleSheet.create({
     alignItems: "center",
     gap: 22
   },
+  navLinksCompact: {
+    width: "100%",
+    justifyContent: "space-between",
+    gap: spacing.sm
+  },
   navLink: {
     ...typography.bodyMd,
     color: colors.onSurfaceVariant,
     fontFamily: typography.familyMedium
   },
   card: {
-    borderRadius: radius.lg,
+    borderRadius: radius.default,
     borderWidth: 1,
     borderColor: colors.outlineVariant,
     padding: spacing.lg,
@@ -221,6 +300,13 @@ export const web = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     paddingHorizontal: 18
+  },
+  buttonHover: {
+    transform: [{ translateY: -1 }],
+    opacity: 0.92
+  },
+  buttonDisabled: {
+    opacity: 0.55
   },
   primaryButton: {
     backgroundColor: colors.primary
@@ -258,7 +344,7 @@ export const web = StyleSheet.create({
     minHeight: 50,
     borderRadius: radius.default,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.border,
     paddingHorizontal: spacing.md,
     color: colors.onSurface,
     backgroundColor: colors.surfaceContainerLowest,
@@ -279,7 +365,7 @@ export const web = StyleSheet.create({
     minHeight: 50,
     borderRadius: radius.default,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.border,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -327,6 +413,9 @@ export const web = StyleSheet.create({
     flex: 1,
     flexDirection: "row"
   },
+  dashboardCompact: {
+    flexDirection: "column"
+  },
   sidebar: {
     width: 260,
     gap: 10,
@@ -335,6 +424,17 @@ export const web = StyleSheet.create({
     borderRightColor: colors.outlineVariant,
     backgroundColor: colors.surfaceContainerLowest
   },
+  sidebarCompact: {
+    width: "100%",
+    borderRightWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.outlineVariant,
+    padding: spacing.md
+  },
+  sideScroll: {
+    gap: spacing.sm,
+    paddingTop: spacing.sm
+  },
   sideItem: {
     minHeight: 44,
     borderRadius: radius.default,
@@ -342,6 +442,13 @@ export const web = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     paddingHorizontal: 12,
+    backgroundColor: colors.surfaceContainerLow
+  },
+  sideItemCompact: {
+    minHeight: 38,
+    borderRadius: radius.full,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md,
     backgroundColor: colors.surfaceContainerLow
   },
   sideText: {
@@ -361,6 +468,12 @@ export const web = StyleSheet.create({
     borderBottomColor: colors.outlineVariant,
     backgroundColor: colors.surfaceContainerLowest
   },
+  topbarCompact: {
+    alignItems: "flex-start",
+    gap: spacing.md,
+    padding: spacing.md,
+    flexDirection: "column"
+  },
   pageTitle: {
     ...typography.headlineMd,
     color: colors.onSurface,
@@ -370,6 +483,10 @@ export const web = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 14
+  },
+  topbarRightCompact: {
+    width: "100%",
+    flexWrap: "wrap"
   },
   searchBar: {
     width: 260,
@@ -381,14 +498,22 @@ export const web = StyleSheet.create({
     paddingHorizontal: 14,
     backgroundColor: colors.surfaceContainerLow
   },
-  searchText: {
-    color: colors.textGrey
+  searchBarCompact: {
+    width: "100%"
+  },
+  searchInput: {
+    flex: 1,
+    color: colors.onSurface
   },
   dashboardBody: {
     flex: 1,
     flexDirection: "row",
     gap: 22,
     padding: 28
+  },
+  dashboardBodyCompact: {
+    flexDirection: "column",
+    padding: spacing.md
   },
   dashboardContent: {
     flex: 1,
@@ -397,6 +522,9 @@ export const web = StyleSheet.create({
   rightPanel: {
     width: 320,
     gap: 16
+  },
+  rightPanelCompact: {
+    width: "100%"
   },
   statCard: {
     flex: 1,

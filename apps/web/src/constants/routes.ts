@@ -1,0 +1,21 @@
+export const routes = {
+  home: "/",
+  login: "/auth/login",
+  register: "/auth/register",
+  memberDashboard: "/dashboard/member",
+  communitySearch: "/community/search",
+  communityDashboard: "/community/dashboard",
+  feed: "/feed",
+  createPost: "/posts/create",
+  myPosts: "/posts/my-posts",
+  events: "/events",
+  calendar: "/events/calendar",
+  notifications: "/notifications",
+  profile: "/profile",
+  adminDashboard: "/admin/dashboard",
+  accessRequests: "/admin/access-requests",
+  postApprovals: "/admin/post-approvals",
+  adminMembers: "/admin/members",
+  adminEvents: "/admin/events",
+  adminSettings: "/admin/settings"
+};

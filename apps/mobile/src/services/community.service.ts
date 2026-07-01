@@ -5,8 +5,8 @@ export interface CreateCommunityPayload {
   name: string;
   description?: string;
   logoUrl?: string;
-  city: string;
-  state: string;
+  city?: string;
+  state?: string;
 }
 
 export interface UpdateCommunityPayload extends Partial<CreateCommunityPayload> {

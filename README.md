@@ -30,7 +30,6 @@ community-app/
 - Node.js 20+
 - npm 10+
 - Java 21
-- Maven 3.9+
 - PostgreSQL 14+
 
 ## Mobile Setup
@@ -66,7 +65,36 @@ Included mobile foundations:
 
 ## Backend Setup
 
-Create a PostgreSQL database and user, then configure environment variables from `apps/backend/.env.example`.
+The backend uses Maven Wrapper, so a global Maven install is not required. For local demo/stability, use the `local` profile; it runs with in-memory H2 and does not require PostgreSQL.
+
+Windows build:
+
+```powershell
+cd apps/backend
+.\mvnw.cmd clean install
+```
+
+Windows run:
+
+```powershell
+cd apps/backend
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=local"
+```
+
+PowerShell helper:
+
+```powershell
+cd apps/backend
+powershell -ExecutionPolicy Bypass -File .\start-backend.ps1
+```
+
+Health check:
+
+```text
+http://localhost:8080/api/health
+```
+
+For PostgreSQL development, create a PostgreSQL database and user, then configure environment variables from `apps/backend/.env.example`.
 
 PowerShell example:
 
@@ -82,16 +110,16 @@ mvn spring-boot:run
 
 Build and test commands:
 
-```bash
+```powershell
 cd apps/backend
-mvn clean install
-mvn test
+.\mvnw.cmd clean install
+.\mvnw.cmd test
 ```
 
 OpenAPI endpoints:
 
-- Swagger UI: `http://localhost:8080/api/docs/swagger`
-- OpenAPI JSON: `http://localhost:8080/api/docs/api`
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
 - App health: `http://localhost:8080/api/health`
 - Health: `http://localhost:8080/api/actuator/health`
 

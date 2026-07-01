@@ -1,11 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { PublicNavbar, WebBadge, WebButton, WebCard, WebSection, WebShell, web } from "@/components/web/WebKit";
+import { Redirect, router } from "expo-router";
+import { Pressable, Platform, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { LoadingState } from "@/components/common/LoadingState";
+import { PublicNavbar, WebBadge, WebButton, WebCard, WebSection, WebShell } from "@/components/web/WebKit";
 import { colors } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { useAuthStore } from "@/store/auth.store";
 
 const features = [
   ["Member Profiles", "Verified member records with role and access status.", "person"],
@@ -17,14 +19,30 @@ const features = [
 ] as const;
 
 export default function LandingPage() {
+  const { width } = useWindowDimensions();
+  const { bootstrapped, isAuthenticated, user } = useAuthStore();
+  const compact = width < 760;
+
+  if (Platform.OS !== "web") {
+    if (!bootstrapped) {
+      return <LoadingState message="Opening app" />;
+    }
+
+    if (!isAuthenticated) {
+      return <Redirect href="/auth/login" />;
+    }
+
+    return <Redirect href={user?.role === "MEMBER" ? "/tabs/feed" : "/admin/dashboard"} />;
+  }
+
   return (
     <WebShell>
       <PublicNavbar onNavigate={(path) => router.push(path as never)} />
       <WebSection>
-        <View style={styles.hero}>
+        <View style={[styles.hero, compact ? styles.heroCompact : null]}>
           <View style={styles.heroCopy}>
             <WebBadge label="WhatsApp-inspired community platform" tone="success" />
-            <Text style={styles.heroTitle}>Manage your community in one simple platform</Text>
+            <Text style={[styles.heroTitle, compact ? styles.heroTitleCompact : null]}>Manage your community in one simple platform</Text>
             <Text style={styles.heroSubtitle}>
               Join communities, manage members, approve posts, schedule events, and send reminders from a calm professional workspace.
             </Text>
@@ -54,9 +72,9 @@ export default function LandingPage() {
           </WebCard>
         </View>
 
-        <View id="features" style={styles.featureGrid}>
+        <View style={styles.featureGrid}>
           {features.map(([title, body, icon]) => (
-            <WebCard key={title} style={styles.featureCard}>
+            <WebCard key={title} style={[styles.featureCard, compact ? styles.featureCardCompact : null]}>
               <View style={styles.featureIcon}><MaterialIcons name={icon} size={22} color={colors.primary} /></View>
               <Text style={styles.featureTitle}>{title}</Text>
               <Text style={styles.featureBody}>{body}</Text>
@@ -83,6 +101,12 @@ const styles = StyleSheet.create({
     gap: 36,
     paddingVertical: 54
   },
+  heroCompact: {
+    minHeight: 0,
+    flexDirection: "column",
+    alignItems: "stretch",
+    paddingVertical: spacing.xl
+  },
   heroCopy: {
     flex: 1,
     gap: spacing.lg
@@ -93,6 +117,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: colors.onSurface,
     fontFamily: typography.familyExtraBold
+  },
+  heroTitleCompact: {
+    fontSize: 34,
+    lineHeight: 40
   },
   heroSubtitle: {
     maxWidth: 650,
@@ -107,7 +135,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap"
   },
   preview: {
-    width: 390,
+    width: "100%",
+    maxWidth: 390,
     gap: spacing.md,
     backgroundColor: colors.primary
   },
@@ -154,6 +183,10 @@ const styles = StyleSheet.create({
     width: "31%",
     minWidth: 280,
     gap: spacing.sm
+  },
+  featureCardCompact: {
+    width: "100%",
+    minWidth: 0
   },
   featureIcon: {
     width: 44,
